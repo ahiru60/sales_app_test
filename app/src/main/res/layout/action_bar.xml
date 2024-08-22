@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/action_bar"
+    android:background="@color/salesBlue"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="?attr/actionBarSize">
+    <ImageButton
+        android:id="@+id/backArrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/baseline_arrow_back_24"
+        android:background="@null"
+        android:visibility="gone"/>
+    <LinearLayout
+        android:id="@+id/viewCartBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        >
+        <TextView
+            android:id="@+id/action_bar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:layout_marginEnd="6dp"
+            android:text="View Cart"
+            android:textSize="18dp"/>
+        <LinearLayout
+            android:layout_width="46dp"
+            android:layout_height="40dp"
+            android:backgroundTint="@color/white"
+            android:gravity="center"
+            android:background="@drawable/clipboard">
+            <TextView
+                android:id="@+id/cartItemNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:textStyle="bold"
+                android:textSize="16dp"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:text="2">
+
+            </TextView>
+        </LinearLayout>
+
+    </LinearLayout>
+    <ImageButton
+        android:id="@+id/action_bar_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_person_add_alt_24"
+        android:layout_gravity="end"
+        android:layout_marginRight="10dp"
+        android:background="@null"
+        android:visibility="gone"/>
+    <ImageButton
+        android:id="@+id/action_bar_add_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_person_add_alt_24"
+        android:layout_gravity="end"
+        android:layout_marginRight="10dp"
+        android:background="@null" />
+</androidx.appcompat.widget.Toolbar>

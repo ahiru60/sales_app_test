@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.SalesApp" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">#0B0F57</item>
+        <item name="color">@color/white</item>
+
+    </style>
+
+    <style name="Theme.SalesApp" parent="Base.Theme.SalesApp" />
+</resources>
