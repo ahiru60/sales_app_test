@@ -736,6 +736,12 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         if(!isValue){
             text+= '%';
         }
+        if(digits.size()== 1){
+            return "0.0"+text;
+        }
+        if(digits.size()== 2){
+            return "0."+text;
+        }
         return text;
     }
 
@@ -775,6 +781,12 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         user.getUserItems().clear();
         user.setUserItems(dbHandler.getOrder(user,orderId));
         discount = user.getDiscount();
+        isValue = discount.isValue();
+        display.setText(discount.getDiscount().toString());
+        if(!isValue){
+            valueRBtn.toggle();
+            percentageRBtn.toggle();
+        }
         user.setOrderId(orderId);
         itemCount = -1;
         for(SessionItem item : user.getUserItems()){
