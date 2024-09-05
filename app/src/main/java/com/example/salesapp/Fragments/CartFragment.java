@@ -16,7 +16,7 @@ import android.widget.ImageButton;
 import com.example.salesapp.Adapters.DbItemsListAdapter;
 import com.example.salesapp.Adapters.SessionItemsListAdapter;
 import com.example.salesapp.MainActivity;
-import com.example.salesapp.Models.DBCartItem;
+import com.example.salesapp.Models.DBItem;
 import com.example.salesapp.Models.SessionItem;
 import com.example.salesapp.Models.User;
 import com.example.salesapp.R;
@@ -41,7 +41,7 @@ public class CartFragment extends Fragment implements DbItemsListAdapter.OnClick
     private String mParam2;
     private View view;
     private RecyclerView recyclerViewCart;
-    private ArrayList<DBCartItem> dbCartItems = new ArrayList<>();
+    private ArrayList<DBItem> dbCartItems = new ArrayList<>();
     private ArrayList<SessionItem> sessionItems;
     private SessionItemsListAdapter cartListAdapter;
     private LinearLayoutManager linearLayoutManager;
@@ -93,7 +93,7 @@ public class CartFragment extends Fragment implements DbItemsListAdapter.OnClick
         homeFragment =(HomeFragment) fragmentManager.findFragmentByTag(HomeFragment.TAG);
 
         User user = homeFragment.getUser();
-        sessionItems = user.getUserCartItems();
+        sessionItems = user.getUserItems();
         cartListAdapter = new SessionItemsListAdapter(sessionItems);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerViewCart.setLayoutManager(linearLayoutManager);
@@ -123,6 +123,11 @@ public class CartFragment extends Fragment implements DbItemsListAdapter.OnClick
 
     @Override
     public void afterItemClick() {
+
+    }
+
+    @Override
+    public void productInfoClick(DBItem item) {
 
     }
 }

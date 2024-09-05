@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="360dp"
+    android:layout_height="460dp"
+    android:gravity="center"
+    android:padding="10dp"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/productImage"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/baseline_photo_size_select_actual_24"
+                app:civ_border_color="#FF000000"
+                app:civ_border_width="2dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/Txt_productName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="product name"
+                    android:textColor="@color/black"
+                    android:textSize="20dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/Txt_stock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="In stock 69"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:orientation="vertical">
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_share_24"
+                android:background="@null"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/baseline_heart_broken_24"
+                android:background="@null"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
+        android:orientation="vertical">
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="20dp"
+    android:orientation="horizontal">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:text="Product Code"/>
+    <TextView
+        android:id="@+id/Txt_productCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17dp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_gravity="end"
+        android:text="10000"/>
+</FrameLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="Product Price"/>
+            <TextView
+                android:id="@+id/Txt_productPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:text="10000"/>
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="Product Cost"/>
+            <TextView
+                android:id="@+id/Txt_productCost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:text="10000"/>
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="Category"/>
+            <TextView
+                android:id="@+id/Txt_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:text="10000"/>
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="Barcode"/>
+            <TextView
+                android:id="@+id/Txt_barcode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:text="10000"/>
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="Tax"/>
+            <TextView
+                android:id="@+id/Txt_tax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="17dp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:text="taxes"/>
+        </FrameLayout>
+
+    </LinearLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+        <LinearLayout
+            android:layout_gravity="end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/Btn_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/salesBlue"
+                android:text="EDIT"/>
+            <Button
+                android:id="@+id/Btn_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:textStyle="bold"
+                android:textColor="@color/salesBlue"
+                android:text="CLOSE"/>
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

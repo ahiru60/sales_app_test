@@ -3,7 +3,6 @@ package com.example.salesapp.Models;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class User {
     private boolean isUserSet = false;
@@ -11,18 +10,29 @@ public class User {
     private String gender;
     private String location;
     private String PaymentMethod;
-    private ArrayList<SessionItem> userCartItems;
+    private Discount discount;
+    private String orderId;
+    private ArrayList<SessionItem> userItems;
 
-    public User(@Nullable String userName,@Nullable String gender,@Nullable String location,@Nullable ArrayList<SessionItem> userCartItems) {
+    public User(@Nullable String userName,@Nullable String gender,@Nullable String location,@Nullable ArrayList<SessionItem> userCartItems ,@Nullable Discount discount) {
         this.userName = userName;
         this.gender = gender;
         this.location = location;
-        this.userCartItems = userCartItems;
+        this.userItems = userCartItems;
+        this.discount = discount;
         if(userName != null && gender != null && location != null && userCartItems != null){
             isUserSet = true;
         }
         this.PaymentMethod = null;
 
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     public boolean isUserSet() {
@@ -53,15 +63,25 @@ public class User {
         this.location = location;
     }
 
-    public ArrayList<SessionItem> getUserCartItems() {
-        return userCartItems;
+    public ArrayList<SessionItem> getUserItems() {
+        return userItems;
     }
-
+    public void setUserItems(ArrayList<SessionItem> cartItems) {
+        userItems = cartItems;
+    }
     public String getPaymentMethod() {
         return PaymentMethod;
     }
 
     public void setPaymentMethod(String paymentMethod) {
         PaymentMethod = paymentMethod;
+    }
+
+    public Discount getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(Discount discount) {
+        this.discount = discount;
     }
 }

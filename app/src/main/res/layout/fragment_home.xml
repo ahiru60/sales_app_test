@@ -10,111 +10,43 @@
 
     <!-- TODO: Update blank fragment layout -->
     <LinearLayout
-        android:id="@+id/paymentView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="28dp"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/total"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0.00"
-                android:textStyle="bold"
-                android:textSize="20dp"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total"
-                android:textStyle="bold"
-                android:textSize="16dp"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginBottom="10dp"
-            android:orientation="horizontal">
-            <Button
-                android:id="@+id/paymentMethodCashBtn"
-                android:layout_width="110dp"
-                android:layout_height="47dp"
-                android:background="@drawable/gray_border_round_white_square"
-                android:layout_marginEnd="10dp"
-                android:text="Cash"/>
-            <Button
-                android:id="@+id/paymentMethodCardBtn"
-                android:layout_width="110dp"
-                android:layout_height="47dp"
-                android:background="@drawable/gray_border_round_white_square"
-                android:layout_marginEnd="10dp"
-                android:text="Card"/>
-            <Button
-                android:id="@+id/paymentMethodReditBtn"
-                android:layout_width="110dp"
-                android:layout_height="47dp"
-                android:background="@drawable/gray_border_round_white_square"
-                android:text="Redit"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="15.2dp"
-                android:text="Amount Due"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/editText_Total"
-                    android:layout_width="350sp"
-                    android:gravity="center"
-                    android:layout_height="wrap_content"/>
-                <ImageButton
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="@null"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/baseline_money_24"
-                    app:tint="@color/black" />
-            </LinearLayout>
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/salesViews"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <Button
-            android:id="@+id/charge"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginHorizontal="5dp"
-            android:background="@drawable/white_round_squre"
-            android:text="CHARGE">
 
-        </Button>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="91dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/saveBtn"
+                android:layout_width="180sp"
+                android:layout_height="60dp"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/white_border_square"
+                android:text="OPEN ORDERS"
+                android:textColor="@color/salesBlue" />
+
+            <Button
+                android:id="@+id/chargeBtn"
+                android:layout_width="180sp"
+                android:layout_height="60dp"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/white_round_squre"
+                android:text="CHARGE"
+                android:textColor="@color/white" />
+        </LinearLayout>
         <LinearLayout
             android:id="@+id/listsView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/white_round_squre"
+            android:backgroundTint="@color/white"
             android:layout_marginTop="20dp"
             android:orientation="vertical"
             >
@@ -146,7 +78,6 @@
                 android:id="@+id/recyclerViewItems"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
                 />
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/CartViewsHolder"
@@ -166,7 +97,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <FrameLayout
-                    android:id="@+id/frameLayout"
+                    android:id="@+id/totalFrameLayout"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:background="@color/white"
@@ -179,6 +110,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:gravity="start"
                         android:text="Total" />
 
@@ -186,8 +118,36 @@
                         android:id="@+id/textView_Total"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:layout_gravity="end"
-                        android:text="price" />
+                        android:text="0.00" />
+                </FrameLayout>
+                <FrameLayout
+                    android:id="@+id/discountFrameLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_marginBottom="30dp"
+                    android:background="@color/white"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:gravity="start"
+                        android:text="Discount" />
+
+                    <TextView
+                        android:id="@+id/textView_Discount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:layout_gravity="end"
+                        android:text="0.00" />
                 </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.recyclerview.widget.RecyclerView

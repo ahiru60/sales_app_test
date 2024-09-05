@@ -3,6 +3,7 @@ package com.example.salesapp.Fragments;
 import android.app.ActionBar;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -77,6 +78,17 @@ public class AddUserFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                mainActivity.setArrow(true);
+                fragmentManager.beginTransaction()
+                        .remove(new AddUserFragment())
+                        .commit();
+                fragmentManager.popBackStack();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     @Override
@@ -106,11 +118,11 @@ public class AddUserFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(firstName != null||lastName != null||gender != null|| location != null){
-                    user = new User(firstName.getText().toString()+" "+lastName.getText().toString(),gender.getText().toString(),location.getText().toString(),null);
+                    user.setUserName(firstName.getText().toString()+" "+lastName.getText().toString());
+                    user.setGender(gender.getText().toString());
+                    user.setLocation(location.getText().toString());
                     actionBarAddUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_24));
-                    viewCartBtn.setVisibility(View.VISIBLE);
-                    backArrow.setVisibility(View.GONE);
-                    mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    mainActivity.setArrow(true);
                     fragmentManager.popBackStack();
                     fragmentManager.beginTransaction()
                             .remove(new AddUserFragment())
@@ -131,5 +143,14 @@ public class AddUserFragment extends Fragment {
                 location.setText("");
             }
         });
+    }
+    private void setupOnbackPressed(){
+        viewCartBtn.setVisibility(View.VISIBLE);
+        mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mainActivity.setArrow(true);
+        fragmentManager.popBackStack();
+        fragmentManager.beginTransaction()
+                .remove(new AddUserFragment())
+                .commit();
     }
 }

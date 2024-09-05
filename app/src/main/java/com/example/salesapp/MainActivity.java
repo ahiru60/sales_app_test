@@ -2,9 +2,11 @@ package com.example.salesapp;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -16,10 +18,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.salesapp.Adapters.DbItemsListAdapter;
 import com.example.salesapp.Database.DbHandler;
 import com.example.salesapp.Fragments.CartFragment;
 import com.example.salesapp.Fragments.ChargeFragment;
 import com.example.salesapp.Fragments.HomeFragment;
+import com.example.salesapp.Fragments.ProductsFragment;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,8 +32,10 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private View actionBar;
     private ImageButton backArrow;
+    private LinearLayout viewCart;
     private FragmentManager fragmentManager;
     private DbHandler dbHandler;
+    private HomeFragment homeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,38 +65,51 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.salesBlue)));
         actionBar = getSupportActionBar().getCustomView();
         backArrow = actionBar.findViewById(R.id.backArrow);
+        viewCart = actionBar.findViewById(R.id.viewCartBtn);
         fragmentManager = getSupportFragmentManager();
         actionBar = getSupportActionBar().getCustomView();
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setArrow(true);
                 setupBackFunction();
             }
         });
 
     }
-    private void setupBackFunction(){
-        Fragment fragment = setArrow();
-        fragmentManager.beginTransaction()
-                .remove(fragment)
-                .commit();
-        fragmentManager.popBackStack();
-        //finish();
-    }
-    public Fragment setArrow(){
+    public void setupBackFunction(){
         int backStackCount = fragmentManager.getBackStackEntryCount();
+        Log.d("MainActivity", "setupBackFunction: "+backStackCount);
         FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(backStackCount-1);
         String fragmentTag = backStackEntry.getName();
         Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
-        if(backStackCount>0){
+        fragmentManager.beginTransaction()
+                .remove(fragment)
+                .commit();
+        Log.d("MainActivity", "setupBackFunction: "+backStackCount);
+        fragmentManager.popBackStack();
+        Log.d("MainActivity", "setupBackFunction: "+backStackCount);
+        //finish();
+    }
+    public void setArrow(boolean isHome){
+
+        if(!isHome){
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             backArrow.setVisibility(View.VISIBLE);
+            viewCart.setVisibility(View.GONE);
 
         }else {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             backArrow.setVisibility(View.GONE);
+            viewCart.setVisibility(View.VISIBLE);
         }
-        return fragment;
+//        if(!homeFragment.getIsCarting()){
+//            backArrow.setVisibility(View.VISIBLE);
+//            viewCart.setVisibility(View.GONE);
+//        }else{
+//            backArrow.setVisibility(View.GONE);
+//            viewCart.setVisibility(View.VISIBLE);
+//        }
     }
     private void setupNavigation() {
         navigationView = findViewById(R.id.navigationView);
@@ -101,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
                 int id = item.getItemId();
                 if (id == R.id.nav_home) {
                     onNavItemHome();
+                }
+                if (id == R.id.nav_products) {
+                    onNavItemProducts();
                 }
 //                else if (id == R.id.nav_account) {
 //                    onNavItemAccount();
@@ -121,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    private void onNavItemHome(){
+    public void onNavItemHome(){
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
             .remove(new HomeFragment())
@@ -141,4 +163,35 @@ public class MainActivity extends AppCompatActivity {
                 .addToBackStack("HomeFragment")
                 .commit();
     }
+    public void onNavItemProducts(){
+        setArrow(false);
+//        fragmentManager = getSupportFragmentManager();
+//        fragmentManager.beginTransaction()
+//                .remove(new ProductsFragment())
+//                .commit();
+//        fragmentManager.popBackStack();
+//
+//        fragmentManager.beginTransaction()
+//                .remove(new HomeFragment())
+//                .commit();
+//        fragmentManager.popBackStack();
+//
+//        fragmentManager.beginTransaction()
+//                .remove(new ChargeFragment())
+//                .commit();
+//        fragmentManager.popBackStack();
+//
+//        fragmentManager.beginTransaction()
+//                .remove(new CartFragment())
+//                .commit();
+//        fragmentManager.popBackStack();
+
+        fragmentManager.beginTransaction()
+                .add(R.id.fragment_container, ProductsFragment.class,null,ProductsFragment.TAG)
+                .setReorderingAllowed(true)
+                .addToBackStack("ProductsFragment")
+                .commit();
+    }
+
 }
+

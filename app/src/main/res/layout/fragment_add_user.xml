@@ -86,6 +86,8 @@
                     android:id="@+id/addUser"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="@color/salesBlue"
+                    android:textColor="@color/white"
                     android:layout_marginEnd="26sp"
                     android:text="Add User" />
 
@@ -93,6 +95,8 @@
                     android:id="@+id/clear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="@color/salesBlue"
+                    android:textColor="@color/white"
                     android:text="Clear" />
             </LinearLayout>
         </LinearLayout>

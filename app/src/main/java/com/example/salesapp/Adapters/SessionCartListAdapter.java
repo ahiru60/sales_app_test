@@ -1,5 +1,6 @@
 package com.example.salesapp.Adapters;
 
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,11 @@ public class SessionCartListAdapter extends RecyclerView.Adapter<SessionCartList
         String itemName = items.get(position).getItemName();
         String quantity = items.get(position).getQuantity();
         String rawPrice =items.get(position).getPrice();
+        Bitmap imageBtmp = items.get(position).getImage();
 
+//        if(imageBtmp != null){
+//            holder.image.setImageBitmap(imageBtmp);
+//        }
         holder.itemName.setText(itemName);
         holder.quantity.setText(quantity);
         DecimalFormat df = new DecimalFormat("0.00");

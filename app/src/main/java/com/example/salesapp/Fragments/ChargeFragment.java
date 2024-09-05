@@ -2,6 +2,7 @@ package com.example.salesapp.Fragments;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -13,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.salesapp.Database.DbHandler;
 import com.example.salesapp.MainActivity;
 import com.example.salesapp.Models.SessionItem;
 import com.example.salesapp.R;
@@ -40,7 +42,7 @@ public class ChargeFragment extends Fragment {
     private ArrayList<SessionItem> items = new ArrayList<>();
     private HomeFragment homeFragment;
     private View view;
-    private ImageButton chargeBackArrowBtn;
+    private ImageButton backArrowBtn;
     private View actionBar;
     private LinearLayout viewCartBtn;
     private MainActivity mainActivity;
@@ -76,6 +78,18 @@ public class ChargeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+
+                fragmentManager.beginTransaction()
+                        .remove(new ChargeFragment())
+                        .commit();
+                fragmentManager.popBackStack();
+
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     @Override
@@ -92,6 +106,8 @@ public class ChargeFragment extends Fragment {
     private void setupView(){
         mainActivity = (MainActivity) getActivity();
         actionBar = mainActivity.getSupportActionBar().getCustomView();
+        backArrowBtn = actionBar.findViewById(R.id.backArrow);
+        backArrowBtn.setVisibility(View.GONE);
         viewCartBtn = actionBar.findViewById(R.id.viewCartBtn);
         viewCartBtn.setVisibility(View.GONE);
         newSalesBtn = view.findViewById(R.id.newSale);
@@ -100,13 +116,13 @@ public class ChargeFragment extends Fragment {
     private void calcTotal(){
         total = view.findViewById(R.id.total);
         homeFragment = (HomeFragment) getParentFragmentManager().findFragmentByTag(HomeFragment.TAG);
-        items = homeFragment.getUser().getUserCartItems();
+        items = homeFragment.getUser().getUserItems();
         String textTotal;
         Double price = 0.00;
-        Double totalPrice = 0.00;
-        for(SessionItem item : items){
-            totalPrice = totalPrice + (Double) Double.parseDouble(item.getPrice())*Integer.parseInt(item.getQuantity());
-        }
+        Double totalPrice = homeFragment.getTotal(items);
+//        for(SessionItem item : items){
+//            totalPrice = totalPrice + (Double) Double.parseDouble(item.getPrice())*Integer.parseInt(item.getQuantity());
+//        }
         DecimalFormat df = new DecimalFormat("0.00");
         df.setMaximumFractionDigits(2);
         total.setText(df.format(totalPrice)+"$");
@@ -115,19 +131,26 @@ public class ChargeFragment extends Fragment {
         newSalesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String orderId = homeFragment.getUser().getOrderId();
+                if(orderId != null){
+                    DbHandler dbHandler = new DbHandler(getContext());
+                    dbHandler.deleteOrder(orderId);
+                }
                 items.clear();
-                viewCartBtn.setVisibility(View.VISIBLE);
-                //homeFragment.setIsCarting(false);
-                mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                fragmentManager = getParentFragmentManager();
-                fragmentManager.popBackStack();
-                fragmentManager.beginTransaction()
-                        .remove(new HomeFragment())
-                        .commit();
+                mainActivity.onNavItemHome();
             }
         });
     }
     private void clearitems(){
         items.clear();
+    }
+    private Double getTotal(ArrayList<SessionItem> items){
+        Double total = 0.00;
+        for (SessionItem item : items){
+            Double price = Double.parseDouble(item.getPrice());
+            Double quantity = Double.parseDouble(item.getQuantity());
+            total = total + price*quantity;
+        }
+        return total;
     }
 }
