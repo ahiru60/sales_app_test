@@ -39,9 +39,11 @@ public class DbHandler extends SQLiteOpenHelper {
         db.execSQL(itemsTableCreateQuery);
         String ordersTableCreateQuery = "CREATE TABLE orders ("
                 +" 'orderId' INTEGER PRIMARY KEY AUTOINCREMENT, "
+                +" 'userId' INTEGER,"
                 +" 'discount' TEXT, "
                 +" 'is_value' INTEGER, "
-                + "'timeStamp' DATETIME DEFAULT CURRENT_TIMESTAMP)";
+                + "'timeStamp' DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY (userId) REFERENCES users(userId))";
         db.execSQL(ordersTableCreateQuery);
         String orderItemsTableCreateQuery = "CREATE TABLE orderItems ("
                 + "orderItemId INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -57,7 +59,8 @@ public class DbHandler extends SQLiteOpenHelper {
         }
         String usersTableCreateQuery = "CREATE TABLE users ("
                 +" 'userId' INTEGER PRIMARY KEY AUTOINCREMENT, "
-                +"'userName' TEXT,"
+                +"'image_url' TEXT,"
+                +"'user_name' TEXT,"
                 + "'gender' TEXT,"
                 + "'location' TEXT)";
         db.execSQL(usersTableCreateQuery);
@@ -144,7 +147,7 @@ public class DbHandler extends SQLiteOpenHelper {
         return items;
     }
 
-    public void saveOrder(ArrayList<SessionItem> order,String discount,boolean isValue){
+    public void saveOrder(ArrayList<SessionItem> order,String discount,boolean isValue,String userId){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         if(discount != null){
@@ -156,6 +159,11 @@ public class DbHandler extends SQLiteOpenHelper {
             }
         }else{
             values.put("discount","0");
+        }
+        if(userId != null){
+            values.put("userId",userId);
+        }else {
+            values.put("userId","");
         }
         long orderId = db.insert("orders", null, values);
 
@@ -176,12 +184,11 @@ public class DbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM orders;", null);
         if(cursor.moveToFirst()){
             do{
-                orders.add(new Order(cursor.getString(0),cursor.getString(2)));
+                orders.add(new Order(cursor.getString(0),cursor.getString(1),cursor.getString(4)));
             }while(cursor.moveToNext());
         }
         return orders;
     }
-    
     public ArrayList<SessionItem> getOrder(User user, String orderId){
         ArrayList<SessionItem> items = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -198,18 +205,26 @@ public class DbHandler extends SQLiteOpenHelper {
                 "    i.image," +
                 "    i.stock," +
                 "    i.cost," +
-                "    i.selling_price\n" +
+                "    i.selling_price," +
+                "    u.user_name," +
+                "    u.gender," +
+                "    u.location\n" +
                 "FROM" +
                 "    orders o\n" +
                 "INNER JOIN" +
                 "    orderItems oi ON o.orderId = oi.orderId\n" +
                 "INNER JOIN" +
                 "    items i ON oi.itemId = i.itemId\n" +
+                "LEFT JOIN" +
+                "    users u ON o.userId = u.userId\n" +
                 "WHERE" +
                 "    o.orderId = ?;";
 
         Cursor cursor = db.rawQuery(query,arg);
         if(cursor.moveToFirst()){
+            user.setUserName(cursor.getString(12));
+            user.setGender(cursor.getString(13));
+            user.setLocation(cursor.getString(14));
             Discount discount = new Discount();
             String isValue = cursor.getString(2);
             if(isValue.equals("1")){
@@ -235,12 +250,12 @@ public class DbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM orders WHERE orderId LIKE ? OR user LIKE ? OR timeStamp LIKE ?", new String[]{"%" + keyword + "%","%" + keyword + "%","%" + keyword + "%"});
         if(cursor.moveToFirst()){
             do{
-                orders.add(new Order(cursor.getString(0),cursor.getString(2)));
+                orders.add(new Order(cursor.getString(0),cursor.getString(1),cursor.getString(4)));
             }while(cursor.moveToNext());
         }
         return orders;
     }
-    public void updateOrder(String orderId, ArrayList<SessionItem> userCartItems){
+    public void updateOrder(String orderId,String userId, ArrayList<SessionItem> userCartItems){
         SQLiteDatabase db = this.getWritableDatabase();
         for(SessionItem item :userCartItems){
             ContentValues values = new ContentValues();
@@ -254,7 +269,11 @@ public class DbHandler extends SQLiteOpenHelper {
                db.insert("orderItems",null,values);
            }
         }
-
+        if(userId != null){
+            ContentValues values = new ContentValues();
+            values.put("userId",userId);
+            db.update("orders",values,"orderId = ?",new String[]{orderId});
+        }
     }
 public void deleteOrder(String orderId){
     SQLiteDatabase db = this.getWritableDatabase();
@@ -262,14 +281,30 @@ public void deleteOrder(String orderId){
     db.delete("orders","orderId = ?",new String[]{ orderId });
 }
 
-    public void addUser(String userName,String gender,String location){
+    public long addUser(Bitmap image,String userName,String gender,String location){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        long userId;
 
-        values.put("userName",userName);
+        values.put("image_url",saveImage(image,userName));
+        values.put("user_name",userName);
         values.put("gender",gender);
         values.put("location",location);
-        db.insert("users",null,values);
+        userId = db.insert("users",null,values);
+        return userId;
+
+    }
+    public ArrayList<User> getUsers(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<User> users = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT * FROM users",null);
+        if(cursor.moveToNext()){
+            do{
+               Bitmap image = readImage(cursor.getString(1));
+                users.add(new User(cursor.getString(0),image,cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
+            }while(cursor.moveToNext());
+        }
+        return users;
     }
     public void deleteTable(String tableName) {
         SQLiteDatabase db = this.getWritableDatabase();

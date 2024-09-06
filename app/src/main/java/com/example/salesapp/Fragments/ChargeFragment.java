@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.example.salesapp.Database.DbHandler;
 import com.example.salesapp.MainActivity;
 import com.example.salesapp.Models.SessionItem;
+import com.example.salesapp.Models.User;
 import com.example.salesapp.R;
 
 import java.text.DecimalFormat;
@@ -131,12 +132,14 @@ public class ChargeFragment extends Fragment {
         newSalesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String orderId = homeFragment.getUser().getOrderId();
+                User user =homeFragment.getUser();
+                String orderId = user.getOrderId();
                 if(orderId != null){
                     DbHandler dbHandler = new DbHandler(getContext());
                     dbHandler.deleteOrder(orderId);
                 }
                 items.clear();
+                user = new User(null,null,null,null,null,null,null);
                 mainActivity.onNavItemHome();
             }
         });

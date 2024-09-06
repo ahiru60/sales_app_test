@@ -130,7 +130,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
             public void handleOnBackPressed() {
 
                 if (!isCarting) {
-                    mainActivity.finish();
+                    mainActivity.backFragments();
                 } else {
                     hideCartView(true);
                     isCarting = false;
@@ -178,7 +178,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
     }
 
     private void setupLogics() {
-        user = new User(null, null, null, sessionItems,null);
+        user = new User(null,null,null,null, null, sessionItems,null);
         itemCount = user.getUserItems().size();
         cursor = 0;
     }
@@ -199,12 +199,14 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         listsView = view.findViewById(R.id.listsView);
         searchBar = view.findViewById(R.id.searchbar);
         addUserBtn = actionBar.findViewById(R.id.action_bar_add_user);
+        addUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_add_alt_24));
         viewCartBtn = actionBar.findViewById(R.id.viewCartBtn);
         salesViews = view.findViewById(R.id.salesViews);
         chargeBtn = view.findViewById(R.id.chargeBtn);
         saveBtn = view.findViewById(R.id.saveBtn);
         setupSearch();
         setupButtonClicks();
+
     }
 
     private void setupItemsRecyclerView() {
@@ -313,7 +315,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
             }
         });
 
-        DbxProductImage = productCustomLayout.findViewById(R.id.productImage);
+        DbxProductImage = productCustomLayout.findViewById(R.id.userImage);
         DbxProductName = productCustomLayout.findViewById(R.id.Txt_productName);
         DbxStock = productCustomLayout.findViewById(R.id.Txt_stock);
         DbxProductCode =productCustomLayout.findViewById(R.id.Txt_productCode);
@@ -488,9 +490,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
             public void onClick(View v) {
                 isCarting = false;
                 hideCartView(true);
-                int count;
                 cartBackArrow.setVisibility(View.GONE);
-                count = fragmentManager.getBackStackEntryCount();
                 viewCartBtn.setVisibility(View.GONE);
                 fragmentManager.beginTransaction()
                         .add(R.id.fragment_container, PaymentFragment.class, null, PaymentFragment.TAG)
@@ -498,7 +498,6 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                         .addToBackStack("PaymentFragment")
                         .commit();
 
-                count = fragmentManager.getBackStackEntryCount();
                 System.out.println("h");
                 mainActivity.setArrow(false);
 
@@ -516,19 +515,21 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                             discount = user.getDiscount().getDiscount().toString();
                             isValue = user.getDiscount().isValue();
                         }
-                        dbHandler.saveOrder(user.getUserItems(),discount,isValue);
+                        dbHandler.saveOrder(user.getUserItems(),discount,isValue, user.getUserId());
                         user.getUserItems().clear();
 
                     }else{
-                        dbHandler.updateOrder(user.getOrderId(),user.getUserItems());
+                        dbHandler.updateOrder(user.getOrderId(),user.getUserId(),user.getUserItems());
                     }
                     cartBackArrow.setVisibility(View.GONE);
-                    fragmentManager.beginTransaction()
-                            .add(R.id.fragment_container, HomeFragment.class, null, HomeFragment.TAG)
-                            .setReorderingAllowed(true)
-                            .addToBackStack("HomeFragment")
-                            .commit();
-                    mainActivity.setArrow(true);
+                    user = new User(null,null,null,null,null,null,null);
+//                    fragmentManager.beginTransaction()
+//                            .add(R.id.fragment_container, HomeFragment.class, null, HomeFragment.TAG)
+//                            .setReorderingAllowed(true)
+//                            .addToBackStack("HomeFragment")
+//                            .commit();
+                    mainActivity.refreshFragments(HomeFragment.TAG);
+                    //mainActivity.setArrow(true);
                 }else{
                     orderItems = dbHandler.getOrders();
                     orderListAdapter = new OrderListAdapter(HomeFragment.this,HomeFragment.this,orderItems);
@@ -541,14 +542,35 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
             @Override
             public void onClick(View v) {
                 if (user.getUserName() != null && user.getGender() != null && user.getLocation() != null) {
+                    isCarting = false;
+                    hideCartView(true);
+                    cartBackArrow.setVisibility(View.GONE);
+                    mainActivity.setArrow(false);
+
+                    fragmentManager.beginTransaction()
+                            .add(R.id.fragment_container, UserFragment.class, null, UserFragment.TAG)
+                            .setReorderingAllowed(true)
+                            .addToBackStack("UserFragment")
+                            .commit();
                     Toast.makeText(getContext(), "name: " + user.getUserName() + " gender: " + user.getGender() + " location: " + user.getLocation(), Toast.LENGTH_LONG).show();
                 } else {
+                    //add to userfrag
+//                    mainActivity.setArrow(false);
+//                    fragmentManager.beginTransaction()
+//                            .add(R.id.fragment_container, AddUserFragment.class, null, AddUserFragment.TAG)
+//                            .setReorderingAllowed(true)
+//                            .addToBackStack("AddUserFragment")
+//                            .commit();
+                    isCarting = false;
+                    hideCartView(true);
+                    cartBackArrow.setVisibility(View.GONE);
                     mainActivity.setArrow(false);
                     fragmentManager.beginTransaction()
-                            .add(R.id.fragment_container, AddUserFragment.class, null, AddUserFragment.TAG)
+                            .add(R.id.fragment_container, UsersFragment.class, null, UsersFragment.TAG)
                             .setReorderingAllowed(true)
-                            .addToBackStack("AddUserFragment")
+                            .addToBackStack("UsersFragment")
                             .commit();
+
                 }
             }
         });
@@ -686,11 +708,13 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
 
     public Double getTotal(ArrayList<SessionItem> items) {
         Double total = 0.00;
-        for (SessionItem item : items) {
-            Double price = Double.parseDouble(item.getPrice());
-            Double quantity = Double.parseDouble(item.getQuantity());
-            total = total + price * quantity;
+        if(items != null){
+            for (SessionItem item : items) {
+                Double price = Double.parseDouble(item.getPrice());
+                Double quantity = Double.parseDouble(item.getQuantity());
+                total = total + price * quantity;
 
+            }
         }
         if(discount != null){
             if(discount.isValue()){
@@ -776,23 +800,33 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         }
     }
 
+    public boolean isCarting(){
+        return isCarting;
+    }
+
     @Override
     public void orderItemClick(String orderId) {
         user.getUserItems().clear();
         user.setUserItems(dbHandler.getOrder(user,orderId));
         discount = user.getDiscount();
-        isValue = discount.isValue();
+        if(discount != null){
+            isValue = discount.isValue();
         display.setText(discount.getDiscount().toString());
         if(!isValue){
             valueRBtn.toggle();
             percentageRBtn.toggle();
+        }
         }
         user.setOrderId(orderId);
         itemCount = -1;
         for(SessionItem item : user.getUserItems()){
             itemCount+= Integer.parseInt(item.getQuantity());
         }
-
+        if(user.getUserName() != null){
+            addUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_24));
+        }else {
+            addUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_add_alt_24));
+        }
         chargeBtn.setText("CHARGE\n" + formatter.format(getTotal(user.getUserItems())) + " $");
         discountTxt.setText(getDiscount(Double.valueOf(getTotal(user.getUserItems()).toString())).toString());
 

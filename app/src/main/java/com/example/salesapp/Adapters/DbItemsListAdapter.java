@@ -104,7 +104,7 @@ public class DbItemsListAdapter extends RecyclerView.Adapter<DbItemsListAdapter.
             super(itemView);
             productInfo = itemView.findViewById(R.id.ImgBtn_info);
             itemRow = itemView.findViewById(R.id.item_row);
-            image =itemView.findViewById(R.id.imageView_image);
+            image =itemView.findViewById(R.id.user_image);
             itemName = itemView.findViewById(R.id.textView_itemName);
             stock = itemView.findViewById(R.id.textView_stock);
             price = itemView.findViewById(R.id.textView_price);

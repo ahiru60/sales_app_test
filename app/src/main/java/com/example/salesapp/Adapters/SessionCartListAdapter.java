@@ -67,7 +67,7 @@ public class SessionCartListAdapter extends RecyclerView.Adapter<SessionCartList
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             itemRow = itemView.findViewById(R.id.item_row);
-            image =itemView.findViewById(R.id.imageView_image);
+            image =itemView.findViewById(R.id.user_image);
             itemName = itemView.findViewById(R.id.textView_itemName);
             quantity = itemView.findViewById(R.id.textView_stock);
             price = itemView.findViewById(R.id.textView_price);

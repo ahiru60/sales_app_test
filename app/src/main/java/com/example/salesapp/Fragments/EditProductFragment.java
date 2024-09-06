@@ -101,7 +101,7 @@ public class EditProductFragment extends Fragment {
         OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
             @Override
             public void handleOnBackPressed() {
-                mainActivity.setArrow(true);
+                //mainActivity.setArrow(true);
                 fragmentManager.beginTransaction()
                         .remove(new EditProductFragment());
                 fragmentManager.popBackStack();

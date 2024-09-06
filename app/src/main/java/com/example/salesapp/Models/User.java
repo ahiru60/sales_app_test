@@ -1,11 +1,15 @@
 package com.example.salesapp.Models;
 
+import android.graphics.Bitmap;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
 public class User {
     private boolean isUserSet = false;
+    private String userId;
+    private Bitmap image;
     private String userName;
     private String gender;
     private String location;
@@ -14,7 +18,9 @@ public class User {
     private String orderId;
     private ArrayList<SessionItem> userItems;
 
-    public User(@Nullable String userName,@Nullable String gender,@Nullable String location,@Nullable ArrayList<SessionItem> userCartItems ,@Nullable Discount discount) {
+    public User(@Nullable String userId,@Nullable Bitmap image,@Nullable String userName,@Nullable String gender,@Nullable String location,@Nullable ArrayList<SessionItem> userCartItems ,@Nullable Discount discount) {
+        this.userId = userId;
+        this.image = image;
         this.userName = userName;
         this.gender = gender;
         this.location = location;
@@ -25,6 +31,14 @@ public class User {
         }
         this.PaymentMethod = null;
 
+    }
+
+    public Bitmap getImage() {
+        return image;
+    }
+
+    public void setImage(Bitmap image) {
+        this.image = image;
     }
 
     public String getOrderId() {
@@ -83,5 +97,13 @@ public class User {
 
     public void setDiscount(Discount discount) {
         this.discount = discount;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

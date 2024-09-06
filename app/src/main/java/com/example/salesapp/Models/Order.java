@@ -4,11 +4,13 @@ import java.util.ArrayList;
 
 public class Order {
     private String orderId;
+    private String userId;
     private String timeStamp;
     private ArrayList<OrderItem> orderItems;
 
-    public Order(String orderId, String timeStamp) {
+    public Order(String orderId,String userId, String timeStamp) {
         this.orderId = orderId;
+        this.userId = userId;
         this.timeStamp = timeStamp;
     }
 

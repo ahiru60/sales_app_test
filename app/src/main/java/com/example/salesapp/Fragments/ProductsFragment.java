@@ -138,7 +138,7 @@ public class ProductsFragment extends Fragment {
                     stock.setText("");
                     cost.setText("");
                     sellingPrice.setText("");
-                    mainActivity.setupBackFunction();
+                    mainActivity.backFragments();
                 }
 
                 FragmentManager fragmentManager = getParentFragmentManager();

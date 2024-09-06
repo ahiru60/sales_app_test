@@ -18,12 +18,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.salesapp.Adapters.DbItemsListAdapter;
 import com.example.salesapp.Database.DbHandler;
 import com.example.salesapp.Fragments.CartFragment;
 import com.example.salesapp.Fragments.ChargeFragment;
 import com.example.salesapp.Fragments.HomeFragment;
 import com.example.salesapp.Fragments.ProductsFragment;
+import com.example.salesapp.Fragments.UsersFragment;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
     private View actionBar;
-    private ImageButton backArrow;
+    private ImageButton backArrow,discountBtn;
     private LinearLayout viewCart;
     private FragmentManager fragmentManager;
     private DbHandler dbHandler;
@@ -66,18 +66,19 @@ public class MainActivity extends AppCompatActivity {
         actionBar = getSupportActionBar().getCustomView();
         backArrow = actionBar.findViewById(R.id.backArrow);
         viewCart = actionBar.findViewById(R.id.viewCartBtn);
+        discountBtn = actionBar.findViewById(R.id.discountBtn);
         fragmentManager = getSupportFragmentManager();
         actionBar = getSupportActionBar().getCustomView();
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setArrow(true);
-                setupBackFunction();
+                //setArrow(true);
+                backFragments();
             }
         });
 
     }
-    public void setupBackFunction(){
+    public void backFragments(){
         int backStackCount = fragmentManager.getBackStackEntryCount();
         Log.d("MainActivity", "setupBackFunction: "+backStackCount);
         FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(backStackCount-1);
@@ -86,10 +87,25 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.beginTransaction()
                 .remove(fragment)
                 .commit();
-        Log.d("MainActivity", "setupBackFunction: "+backStackCount);
         fragmentManager.popBackStack();
-        Log.d("MainActivity", "setupBackFunction: "+backStackCount);
         //finish();
+        backStackCount = fragmentManager.getBackStackEntryCount();
+        if(backStackCount<3){
+            setArrow(true);
+        }
+        if(backStackCount < 2){
+            finish();
+        }
+    }
+    public void refreshFragments(String fragmentTag){
+        Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
+        fragmentManager.beginTransaction()
+                .remove(fragment)
+                .commit();
+        //fragmentManager.popBackStack();
+        fragmentManager.beginTransaction()
+                .add(R.id.fragment_container, fragment.getClass(), null,fragmentTag)
+                .commit();
     }
     public void setArrow(boolean isHome){
 
@@ -97,11 +113,13 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             backArrow.setVisibility(View.VISIBLE);
             viewCart.setVisibility(View.GONE);
+            discountBtn.setVisibility(View.GONE);
 
         }else {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             backArrow.setVisibility(View.GONE);
             viewCart.setVisibility(View.VISIBLE);
+            discountBtn.setVisibility(View.VISIBLE);
         }
 //        if(!homeFragment.getIsCarting()){
 //            backArrow.setVisibility(View.VISIBLE);
