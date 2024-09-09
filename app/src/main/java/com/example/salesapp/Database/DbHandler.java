@@ -206,9 +206,11 @@ public class DbHandler extends SQLiteOpenHelper {
                 "    i.stock," +
                 "    i.cost," +
                 "    i.selling_price," +
+                "    u.userId," +
                 "    u.user_name," +
                 "    u.gender," +
-                "    u.location\n" +
+                "    u.location," +
+                "    u.image_url\n" +
                 "FROM" +
                 "    orders o\n" +
                 "INNER JOIN" +
@@ -222,9 +224,13 @@ public class DbHandler extends SQLiteOpenHelper {
 
         Cursor cursor = db.rawQuery(query,arg);
         if(cursor.moveToFirst()){
-            user.setUserName(cursor.getString(12));
-            user.setGender(cursor.getString(13));
-            user.setLocation(cursor.getString(14));
+            user.setUserName(cursor.getString(13));
+            user.setUserId(cursor.getString(12));
+            user.setGender(cursor.getString(14));
+            user.setLocation(cursor.getString(15));
+            if(cursor.getString(16) != null){
+                user.setImage(readImage(cursor.getString(16)));
+            }
             Discount discount = new Discount();
             String isValue = cursor.getString(2);
             if(isValue.equals("1")){
@@ -305,6 +311,18 @@ public void deleteOrder(String orderId){
             }while(cursor.moveToNext());
         }
         return users;
+    }
+    public Bitmap getUserImage(String userId){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<User> users = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT image_url FROM users WHERE userId = ?",new String[]{userId});
+        Bitmap image = null;
+        if(cursor.moveToNext()){
+            do{
+                image = readImage(cursor.getString(1));
+               }while(cursor.moveToNext());
+        }
+        return image;
     }
     public void deleteTable(String tableName) {
         SQLiteDatabase db = this.getWritableDatabase();

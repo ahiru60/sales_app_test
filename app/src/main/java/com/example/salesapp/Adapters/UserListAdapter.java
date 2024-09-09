@@ -46,10 +46,12 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
             public void onClick(View v) {
                User currentUser = onClickListener.addUserOnClick();
                currentUser.setUserName(user.getUserName());
+               currentUser.setUserId(user.getUserId());
                currentUser.setImage(user.getImage());
                currentUser.setLocation(user.getLocation());
                currentUser.setGender(user.getGender());
                currentUser.setUserId(user.getUserId());
+
             }
         });
         }

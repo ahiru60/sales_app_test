@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public void backFragments(){
         int backStackCount = fragmentManager.getBackStackEntryCount();
-        Log.d("MainActivity", "setupBackFunction: "+backStackCount);
         FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(backStackCount-1);
         String fragmentTag = backStackEntry.getName();
         Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);

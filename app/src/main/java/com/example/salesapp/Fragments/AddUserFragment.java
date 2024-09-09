@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -27,6 +28,7 @@ import androidx.fragment.app.FragmentManager;
 import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -270,7 +272,7 @@ public class AddUserFragment extends Fragment {
                 case 0:
                     if (resultCode == RESULT_OK && data != null) {
                         userImageBtmp = (Bitmap) data.getExtras().get("data");
-                        userImageBtmp = rotateBitmap(userImageBtmp,90);
+                        userImageBtmp = rotateBitmap(userImageBtmp);
                         userImage.setImageBitmap(userImageBtmp);
                     }
                     break;
@@ -294,7 +296,8 @@ public class AddUserFragment extends Fragment {
             }
         }
     }
-    private Bitmap rotateBitmap(Bitmap sourceBitmap,float angle) {
+    private Bitmap rotateBitmap(Bitmap sourceBitmap) {
+        float angle = getCameraRotationAngle();
         Bitmap bitmap = sourceBitmap;
         Bitmap rotateBitmap = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -304,6 +307,38 @@ public class AddUserFragment extends Fragment {
         canvas.drawBitmap(bitmap, matrix, null);
         return rotateBitmap;
     }
+    private int getCameraRotationAngle() {
+        int cameraId = Camera.CameraInfo.CAMERA_FACING_BACK; // Default to back camera
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraId, cameraInfo);
+
+        int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+        int degrees = 0;
+
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+
+        int result;
+        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (cameraInfo.orientation + degrees) % 360;
+            result = (360 - result) % 360;  // Compensate for mirror effect
+        } else { // Back-facing camera
+            result = (cameraInfo.orientation - degrees + 360) % 360;
+        }
+        return result;
+    }
     private void setupOnbackPressed(){
         viewCartBtn.setVisibility(View.VISIBLE);
         mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -312,5 +347,9 @@ public class AddUserFragment extends Fragment {
         fragmentManager.beginTransaction()
                 .remove(new AddUserFragment())
                 .commit();
+    }
+
+    private void capture(){
+
     }
 }

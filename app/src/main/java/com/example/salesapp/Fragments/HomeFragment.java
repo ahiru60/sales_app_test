@@ -546,13 +546,15 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                     hideCartView(true);
                     cartBackArrow.setVisibility(View.GONE);
                     mainActivity.setArrow(false);
-
+                    Fragment fragment = fragmentManager.findFragmentByTag(UserFragment.TAG);
+                    if(fragment == null){
                     fragmentManager.beginTransaction()
                             .add(R.id.fragment_container, UserFragment.class, null, UserFragment.TAG)
                             .setReorderingAllowed(true)
                             .addToBackStack("UserFragment")
                             .commit();
-                    Toast.makeText(getContext(), "name: " + user.getUserName() + " gender: " + user.getGender() + " location: " + user.getLocation(), Toast.LENGTH_LONG).show();
+                    }
+                    //Toast.makeText(getContext(), "name: " + user.getUserName() + " gender: " + user.getGender() + " location: " + user.getLocation(), Toast.LENGTH_LONG).show();
                 } else {
                     //add to userfrag
 //                    mainActivity.setArrow(false);
@@ -565,11 +567,14 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                     hideCartView(true);
                     cartBackArrow.setVisibility(View.GONE);
                     mainActivity.setArrow(false);
-                    fragmentManager.beginTransaction()
-                            .add(R.id.fragment_container, UsersFragment.class, null, UsersFragment.TAG)
-                            .setReorderingAllowed(true)
-                            .addToBackStack("UsersFragment")
-                            .commit();
+                    Fragment fragment = fragmentManager.findFragmentByTag(UsersFragment.TAG);
+                    if(fragment == null){
+                        fragmentManager.beginTransaction()
+                                .add(R.id.fragment_container, UsersFragment.class, null, UsersFragment.TAG)
+                                .setReorderingAllowed(true)
+                                .addToBackStack("UsersFragment")
+                                .commit();
+                    }
 
                 }
             }
@@ -800,6 +805,16 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         }
     }
 
+    public void removeUser(){
+        user.setUserId(null);
+        user.setLocation(null);
+        user.setGender(null);
+        user.setImage(null);
+        user.setUserName(null);
+        addUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_add_alt_24));
+        mainActivity.backFragments();
+    }
+
     public boolean isCarting(){
         return isCarting;
     }
@@ -829,9 +844,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         }
         chargeBtn.setText("CHARGE\n" + formatter.format(getTotal(user.getUserItems())) + " $");
         discountTxt.setText(getDiscount(Double.valueOf(getTotal(user.getUserItems()).toString())).toString());
-
         showOrderDialog.cancel();
-
     }
 }
 

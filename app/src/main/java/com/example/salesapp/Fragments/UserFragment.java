@@ -3,11 +3,17 @@ package com.example.salesapp.Fragments;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.example.salesapp.Database.DbHandler;
+import com.example.salesapp.Models.User;
 import com.example.salesapp.R;
 
 /**
@@ -26,6 +32,12 @@ public class UserFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private User user;
+    private FragmentManager fragmentManager;
+    private View view;
+    private TextView userName,gender,location;
+    private ImageView userImage;
+    private Button removeUserBtn;
 
     public UserFragment() {
         // Required empty public constructor
@@ -62,6 +74,32 @@ public class UserFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_user, container, false);
+        DbHandler dbHandler = new DbHandler(getContext());
+        view = inflater.inflate(R.layout.fragment_user, container, false);
+        fragmentManager = getParentFragmentManager();
+        HomeFragment homeFragment = (HomeFragment) fragmentManager.findFragmentByTag(HomeFragment.TAG);
+        user = homeFragment.getUser();
+        userImage = view.findViewById(R.id.user_Image);
+        userName = view.findViewById(R.id.username);
+        gender = view.findViewById(R.id.gender);
+        location = view.findViewById(R.id.location);
+        removeUserBtn = view.findViewById(R.id.remove_user);
+        userImage.setImageBitmap(user.getImage());
+        userName.setText(user.getUserName());
+        gender.setText(user.getGender());
+        location.setText(user.getLocation());
+        removeUserBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                user.setUserId(null);
+//                user.setLocation(null);
+//                user.setGender(null);
+//                user.setImage(null);
+//                user.setUserName(null);
+                homeFragment.removeUser();
+
+            }
+        });
+        return view;
     }
 }
