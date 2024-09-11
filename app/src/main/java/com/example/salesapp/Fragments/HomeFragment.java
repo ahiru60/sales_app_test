@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -34,7 +33,6 @@ import com.example.salesapp.Models.Discount;
 import com.example.salesapp.Models.Order;
 import com.example.salesapp.Models.SessionItem;
 import com.example.salesapp.Models.User;
-import com.example.salesapp.PaymentFragment;
 import com.example.salesapp.R;
 
 import java.text.DecimalFormat;

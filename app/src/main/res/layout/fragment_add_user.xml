@@ -1,114 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:orientation="vertical"
     tools:context=".Fragments.AddUserFragment">
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="15dp">
-            <de.hdodenhof.circleimageview.CircleImageView
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/userImage"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:src="@drawable/baseline_photo_size_select_actual_24"
-                app:civ_border_width="2dp"
-                app:civ_border_color="#FF000000"/>
-
-        </LinearLayout>
-
+        android:layout_height="match_parent">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingHorizontal="15dp"
-            android:paddingVertical="30dp">
-            <!--        <TextView-->
-            <!--            android:layout_width="wrap_content"-->
-            <!--            android:layout_height="wrap_content"-->
-            <!--            android:textSize="18sp"-->
-            <!--            android:textStyle="bold"-->
-            <!--            android:text="First Name"/>-->
-            <FrameLayout
-                android:id="@+id/view_imageUpload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <!--                <ImageView-->
-                <!--                    android:id="@+id/userImage"-->
-                <!--                    android:layout_width="150dp"-->
-                <!--                    android:layout_height="150dp"-->
-                <!--                    android:layout_marginBottom="20dp"-->
-                <!--                    android:clipToOutline="true"-->
-                <!--                    android:background="@drawable/round_shape"-->
-                <!--                    android:src="@drawable/baseline_person_24" />-->
-
-            </FrameLayout>
-
-            <EditText
-                android:id="@+id/editText_firstName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="30dp"
-                android:hint="First Name" />
-
-            <EditText
-                android:id="@+id/editText_lastName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="30dp"
-                android:hint="Last Name" />
-
-            <EditText
-                android:id="@+id/editText_gender"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="30dp"
-                android:hint="Gender" />
-
-            <EditText
-                android:id="@+id/editText_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="30dp"
-                android:hint="Address" />
+            android:orientation="vertical">
 
             <LinearLayout
+                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="60dp"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:paddingVertical="15dp">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/userImage"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/baseline_photo_size_select_actual_24"
+                    app:civ_border_width="2dp"
+                    app:civ_border_color="#FF000000"/>
 
-                <Button
-                    android:id="@+id/addUser"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@color/salesBlue"
-                    android:textColor="@color/white"
-                    android:layout_marginEnd="26sp"
-                    android:text="Add User" />
-
-                <Button
-                    android:id="@+id/clear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@color/salesBlue"
-                    android:textColor="@color/white"
-                    android:text="Clear" />
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
 
-</ScrollView>
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="30dp">
+                    <!--        <TextView-->
+                    <!--            android:layout_width="wrap_content"-->
+                    <!--            android:layout_height="wrap_content"-->
+                    <!--            android:textSize="18sp"-->
+                    <!--            android:textStyle="bold"-->
+                    <!--            android:text="First Name"/>-->
+                    <FrameLayout
+                        android:id="@+id/view_imageUpload"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <!--                <ImageView-->
+                        <!--                    android:id="@+id/userImage"-->
+                        <!--                    android:layout_width="150dp"-->
+                        <!--                    android:layout_height="150dp"-->
+                        <!--                    android:layout_marginBottom="20dp"-->
+                        <!--                    android:clipToOutline="true"-->
+                        <!--                    android:background="@drawable/round_shape"-->
+                        <!--                    android:src="@drawable/baseline_person_24" />-->
+
+                    </FrameLayout>
+
+                    <EditText
+                        android:id="@+id/editText_firstName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="30dp"
+                        android:hint="First Name" />
+
+                    <EditText
+                        android:id="@+id/editText_lastName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="30dp"
+                        android:hint="Last Name" />
+
+                    <EditText
+                        android:id="@+id/editText_gender"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="30dp"
+                        android:hint="Gender" />
+
+                    <EditText
+                        android:id="@+id/editText_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="30dp"
+                        android:hint="Address" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="60dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/addUser"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="@color/salesBlue"
+                            android:textColor="@color/white"
+                            android:layout_marginEnd="26sp"
+                            android:text="Add User" />
+
+                        <Button
+                            android:id="@+id/clear"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="@color/salesBlue"
+                            android:textColor="@color/white"
+                            android:text="Clear" />
+                    </LinearLayout>
+                </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
+        <FrameLayout
+            android:id="@+id/capture_camera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+            <androidx.camera.view.PreviewView
+                android:id="@+id/previewView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+            <ImageButton
+                android:id="@+id/captureBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_camera_24"
+                android:layout_marginBottom="30dp"
+                android:layout_gravity="bottom|center"
+                android:background="@null"/>
+            <ImageButton
+                android:id="@+id/cameraChange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_flip_camera_ios_24"
+                android:layout_marginBottom="40dp"
+                android:layout_marginEnd="35dp"
+                android:layout_gravity="bottom|end"
+                android:background="@null"/>
+        </FrameLayout>
+    </FrameLayout>
+
+
+</LinearLayout>

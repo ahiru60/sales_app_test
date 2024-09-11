@@ -19,13 +19,21 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -33,6 +41,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,9 +51,12 @@ import com.example.salesapp.Database.DbHandler;
 import com.example.salesapp.MainActivity;
 import com.example.salesapp.Models.User;
 import com.example.salesapp.R;
+import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,6 +88,12 @@ public class AddUserFragment extends Fragment {
     private LinearLayout viewCartBtn;
     private Bitmap userImageBtmp;
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 101;
+    private PreviewView previewView;
+    private ImageCapture imageCapture;
+    private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
+    private FrameLayout cameraLayout;
+    private ImageButton captureBtn,cameraFlipBtn;
+    private int rotation = 0;
 
     public AddUserFragment() {
         // Required empty public constructor
@@ -133,6 +151,11 @@ public class AddUserFragment extends Fragment {
         fragmentManager = getParentFragmentManager();
         mainActivity = (MainActivity) getActivity();
         mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        previewView = view.findViewById(R.id.previewView);
+        cameraLayout = view.findViewById(R.id.capture_camera);
+        captureBtn = view.findViewById(R.id.captureBtn);
+        cameraFlipBtn = view.findViewById(R.id.cameraChange);
+        cameraProviderFuture = ProcessCameraProvider.getInstance(getContext());
         actionBar = mainActivity.getSupportActionBar().getCustomView();
         viewCartBtn = actionBar.findViewById(R.id.viewCartBtn);
         viewCartBtn.setVisibility(View.GONE);
@@ -203,8 +226,40 @@ public class AddUserFragment extends Fragment {
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(optionsMenu[i].equals("Take Photo")){
                     // Open the camera and get the photo
-                    Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(takePicture, 0);
+                    final int[] camera_lens = {CameraSelector.LENS_FACING_BACK};
+                    cameraLayout.setVisibility(View.VISIBLE);
+                    cameraProviderFuture.addListener(() -> {
+                        try {
+                            rotation = 90;
+                            ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                            startCamera(cameraProvider, camera_lens[0]);
+                            captureBtn.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    capturePhoto();
+                                    cameraLayout.setVisibility(View.GONE);
+                                }
+                            });
+                            cameraFlipBtn.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if(camera_lens[0] == CameraSelector.LENS_FACING_BACK){
+                                        camera_lens[0] = CameraSelector.LENS_FACING_FRONT;
+                                        rotation = -90;
+                                        startCamera(cameraProvider, camera_lens[0]);
+                                    }else{
+                                        camera_lens[0] = CameraSelector.LENS_FACING_BACK;
+                                        rotation = 90;
+                                        startCamera(cameraProvider,camera_lens[0]);
+                                    }
+
+                                }
+                            });
+
+                        } catch (ExecutionException | InterruptedException e) {
+                            Log.e("CameraXApp", "Failed to bind camera use cases", e);
+                        }
+                    }, ContextCompat.getMainExecutor(getContext()));
                 }
                 else if(optionsMenu[i].equals("Choose from Gallery")){
                     // choose from  external storage
@@ -269,13 +324,6 @@ public class AddUserFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_CANCELED) {
             switch (requestCode) {
-                case 0:
-                    if (resultCode == RESULT_OK && data != null) {
-                        userImageBtmp = (Bitmap) data.getExtras().get("data");
-                        userImageBtmp = rotateBitmap(userImageBtmp);
-                        userImage.setImageBitmap(userImageBtmp);
-                    }
-                    break;
                 case 1:
                     if (resultCode == RESULT_OK && data != null) {
                         Uri selectedImage = data.getData();
@@ -296,9 +344,9 @@ public class AddUserFragment extends Fragment {
             }
         }
     }
-    private Bitmap rotateBitmap(Bitmap sourceBitmap) {
-        float angle = getCameraRotationAngle();
+    private Bitmap rotateBitmap(Bitmap sourceBitmap,float angle) {
         Bitmap bitmap = sourceBitmap;
+       int i = getCameraRotationAngle();
         Bitmap rotateBitmap = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(rotateBitmap);
@@ -348,8 +396,51 @@ public class AddUserFragment extends Fragment {
                 .remove(new AddUserFragment())
                 .commit();
     }
+    private void startCamera(@NonNull ProcessCameraProvider cameraProvider, int cameraSelection) {
+        // Preview Use Case
+        Preview preview = new Preview.Builder().build();
 
-    private void capture(){
+        // Bind the Preview Use Case to the PreviewView
+        preview.setSurfaceProvider(previewView.getSurfaceProvider());
+        // Set up the ImageCapture use case
+        imageCapture = new ImageCapture.Builder()
+                .setTargetRotation(getActivity().getWindowManager().getDefaultDisplay().getRotation())
+                .build();
+        // Select the back camera
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(cameraSelection)
+                .build();
 
+        // Unbind all use cases before rebinding
+        cameraProvider.unbindAll();
+
+        // Bind use cases to the camera with the lifecycle
+        androidx.camera.core.Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
+    }
+    private void capturePhoto() {
+        // Create a temporary file for the captured image
+        File photoFile = new File(requireContext().getExternalFilesDir(null), "photo.jpg");
+
+        // Set up the output options for ImageCapture
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+
+        // Capture the photo and handle the result
+        imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(getActivity()),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        // Load the captured image into the ImageView
+                        userImageBtmp = rotateBitmap(BitmapFactory.decodeFile(photoFile.getAbsolutePath()),rotation);
+                        userImage.setImageBitmap(userImageBtmp);
+                        Toast.makeText(getContext(), "Photo captured successfully", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        Log.e("CameraXApp", "Photo capture failed: " + exception.getMessage(), exception);
+                        Toast.makeText(getContext(), "Failed to capture photo", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

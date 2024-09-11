@@ -1,4 +1,4 @@
-package com.example.salesapp;
+package com.example.salesapp.Fragments;
 
 import android.os.Bundle;
 
@@ -13,10 +13,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.salesapp.Fragments.ChargeFragment;
-import com.example.salesapp.Fragments.HomeFragment;
+import com.example.salesapp.MainActivity;
 import com.example.salesapp.Models.SessionItem;
 import com.example.salesapp.Models.User;
+import com.example.salesapp.R;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

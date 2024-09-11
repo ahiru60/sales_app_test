@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
     private View actionBar;
-    private ImageButton backArrow,discountBtn;
+    private ImageButton backArrow,discountBtn,addUserBtn;
     private LinearLayout viewCart;
     private FragmentManager fragmentManager;
     private DbHandler dbHandler;
@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.salesBlue)));
         actionBar = getSupportActionBar().getCustomView();
         backArrow = actionBar.findViewById(R.id.backArrow);
+        addUserBtn = actionBar.findViewById(R.id.action_bar_add_user);
         viewCart = actionBar.findViewById(R.id.viewCartBtn);
         discountBtn = actionBar.findViewById(R.id.discountBtn);
         fragmentManager = getSupportFragmentManager();
@@ -113,12 +114,14 @@ public class MainActivity extends AppCompatActivity {
             backArrow.setVisibility(View.VISIBLE);
             viewCart.setVisibility(View.GONE);
             discountBtn.setVisibility(View.GONE);
+            addUserBtn.setVisibility(View.GONE);
 
         }else {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             backArrow.setVisibility(View.GONE);
             viewCart.setVisibility(View.VISIBLE);
             discountBtn.setVisibility(View.VISIBLE);
+            addUserBtn.setVisibility(View.VISIBLE);
         }
 //        if(!homeFragment.getIsCarting()){
 //            backArrow.setVisibility(View.VISIBLE);

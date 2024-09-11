@@ -43,7 +43,7 @@ public class ChargeFragment extends Fragment {
     private ArrayList<SessionItem> items = new ArrayList<>();
     private HomeFragment homeFragment;
     private View view;
-    private ImageButton backArrowBtn;
+    private ImageButton backArrowBtn,addUserBtn;
     private View actionBar;
     private LinearLayout viewCartBtn;
     private MainActivity mainActivity;
@@ -83,10 +83,15 @@ public class ChargeFragment extends Fragment {
             @Override
             public void handleOnBackPressed() {
 
+//                fragmentManager.beginTransaction()
+//                        .remove(new ChargeFragment())
+//                        .commit();
+//                fragmentManager.popBackStack();
                 fragmentManager.beginTransaction()
-                        .remove(new ChargeFragment())
+                        .add(R.id.fragment_container,HomeFragment.class,null,HomeFragment.TAG)
+                        .setReorderingAllowed(true)
+                        .addToBackStack("HomeFragment")
                         .commit();
-                fragmentManager.popBackStack();
 
             }
         };
@@ -108,6 +113,7 @@ public class ChargeFragment extends Fragment {
         mainActivity = (MainActivity) getActivity();
         actionBar = mainActivity.getSupportActionBar().getCustomView();
         backArrowBtn = actionBar.findViewById(R.id.backArrow);
+        addUserBtn = actionBar.findViewById(R.id.action_bar_add_user);
         backArrowBtn.setVisibility(View.GONE);
         viewCartBtn = actionBar.findViewById(R.id.viewCartBtn);
         viewCartBtn.setVisibility(View.GONE);
