@@ -143,7 +143,7 @@ public class EditProductFragment extends Fragment {
     }
     private void initViews() {
         mainActivity = (MainActivity) getActivity();
-        mainActivity.setArrow(false);
+        mainActivity.homeSetActions(false);
         previewView = view.findViewById(R.id.previewView);
         cameraLayout = view.findViewById(R.id.capture_camera);
         captureBtn = view.findViewById(R.id.captureBtn);

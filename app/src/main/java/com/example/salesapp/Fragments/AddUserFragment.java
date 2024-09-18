@@ -127,7 +127,7 @@ public class AddUserFragment extends Fragment {
         OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
             @Override
             public void handleOnBackPressed() {
-                mainActivity.setArrow(true);
+                mainActivity.homeSetActions(true);
                 fragmentManager.beginTransaction()
                         .remove(new AddUserFragment())
                         .commit();

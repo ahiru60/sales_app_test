@@ -2,11 +2,12 @@ package com.example.salesapp;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -19,11 +20,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.salesapp.Database.DbHandler;
-import com.example.salesapp.Fragments.CartFragment;
 import com.example.salesapp.Fragments.ChargeFragment;
 import com.example.salesapp.Fragments.HomeFragment;
 import com.example.salesapp.Fragments.ProductsFragment;
-import com.example.salesapp.Fragments.UsersFragment;
+import com.example.salesapp.Fragments.ReceiptFragment;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
     private View actionBar;
-    private ImageButton backArrow,discountBtn,addUserBtn;
+    private ImageButton backArrow,discountBtn,addUserBtn,dateRange;
+    private TextView title;
     private LinearLayout viewCart;
     private FragmentManager fragmentManager;
     private DbHandler dbHandler;
@@ -64,8 +65,10 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.salesBlue)));
         actionBar = getSupportActionBar().getCustomView();
+        title = actionBar.findViewById(R.id.action_bar_title);
         backArrow = actionBar.findViewById(R.id.backArrow);
         addUserBtn = actionBar.findViewById(R.id.action_bar_add_user);
+        dateRange = actionBar.findViewById(R.id.action_bar_select_date);
         viewCart = actionBar.findViewById(R.id.viewCartBtn);
         discountBtn = actionBar.findViewById(R.id.discountBtn);
         fragmentManager = getSupportFragmentManager();
@@ -79,23 +82,47 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+    public int presstime = 0;
     public void backFragments(){
+
         int backStackCount = fragmentManager.getBackStackEntryCount();
         FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(backStackCount-1);
         String fragmentTag = backStackEntry.getName();
         Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
-        fragmentManager.beginTransaction()
-                .remove(fragment)
-                .commit();
-        fragmentManager.popBackStack();
+        if(fragment instanceof ChargeFragment){
+            presstime = 0;
+            onNavItemHome();
+        }
+        else{
+            if(backStackCount < 2){
+                presstime++;
+                if(presstime <2){
+                    Toast.makeText(MainActivity.this,"Press back again to exit",Toast.LENGTH_SHORT).show();
+                }else{
+                    finish();
+                }
+            }
+            else{
+                presstime = 0;
+                fragmentManager.beginTransaction()
+                        .remove(fragment)
+                        .commit();
+                fragmentManager.popBackStack();
+            }
+        }
         //finish();
         backStackCount = fragmentManager.getBackStackEntryCount();
         if(backStackCount<3){
-            setArrow(true);
+            homeSetActions(true);
         }
-        if(backStackCount < 2){
-            finish();
-        }
+//        if(backStackCount < 2){
+//            presstime++;
+//            if(presstime <2){
+//                Toast.makeText(MainActivity.this,"Press back again to exit",Toast.LENGTH_SHORT).show();
+//            }else{
+//                finish();
+//            }
+//        }
     }
     public void refreshFragments(String fragmentTag){
         Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
@@ -107,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 .add(R.id.fragment_container, fragment.getClass(), null,fragmentTag)
                 .commit();
     }
-    public void setArrow(boolean isHome){
+    public void homeSetActions(boolean isHome){
 
         if(!isHome){
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -123,13 +150,33 @@ public class MainActivity extends AppCompatActivity {
             discountBtn.setVisibility(View.VISIBLE);
             addUserBtn.setVisibility(View.VISIBLE);
         }
-//        if(!homeFragment.getIsCarting()){
-//            backArrow.setVisibility(View.VISIBLE);
-//            viewCart.setVisibility(View.GONE);
-//        }else{
-//            backArrow.setVisibility(View.GONE);
-//            viewCart.setVisibility(View.VISIBLE);
-//        }
+    }
+    private void showHideActions(String navPoint){
+        switch (navPoint){
+            case "HomeFragment":
+                title.setText("");
+                dateRange.setVisibility(View.GONE);
+                homeSetActions(true);
+                break;
+            case "ProductsFragment":
+                title.setText("Add Product");
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                backArrow.setVisibility(View.GONE);
+                viewCart.setVisibility(View.GONE);
+                discountBtn.setVisibility(View.GONE);
+                addUserBtn.setVisibility(View.GONE);
+                dateRange.setVisibility(View.GONE);
+                break;
+            case "ReceiptFragment":
+                title.setText("Past Receipts");
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                backArrow.setVisibility(View.GONE);
+                viewCart.setVisibility(View.GONE);
+                discountBtn.setVisibility(View.GONE);
+                addUserBtn.setVisibility(View.GONE);
+                dateRange.setVisibility(View.VISIBLE);
+                break;
+        }
     }
     private void setupNavigation() {
         navigationView = findViewById(R.id.navigationView);
@@ -144,6 +191,9 @@ public class MainActivity extends AppCompatActivity {
                 if (id == R.id.nav_products) {
                     onNavItemProducts();
                 }
+                if (id == R.id.nav_receipt) {
+                    onNavItemReceipts();
+                }
 //                else if (id == R.id.nav_account) {
 //                    onNavItemAccount();
 //                } else if (id == R.id.nav_settings) {
@@ -156,6 +206,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
@@ -164,19 +217,25 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     public void onNavItemHome(){
-        fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-            .remove(new HomeFragment())
-            .commit();
-        fragmentManager.popBackStack();
-        fragmentManager.beginTransaction()
-                .remove(new ChargeFragment())
-                .commit();
-        fragmentManager.popBackStack();
-        fragmentManager.beginTransaction()
-                .remove(new CartFragment())
-                .commit();
-        fragmentManager.popBackStack();
+//        fragmentManager = getSupportFragmentManager();
+//        fragmentManager.beginTransaction()
+//            .remove(new HomeFragment())
+//            .commit();
+//        fragmentManager.popBackStack();
+//        fragmentManager.beginTransaction()
+//                .remove(new ChargeFragment())
+//                .commit();
+//        fragmentManager.popBackStack();
+//        fragmentManager.beginTransaction()
+//                .remove(new CartFragment())
+//                .commit();
+//        fragmentManager.popBackStack();
+        showHideActions(HomeFragment.TAG);
+        homeSetActions(true);
+        presstime = 0;
+        while (fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStackImmediate();
+        }
         fragmentManager.beginTransaction()
                 .add(R.id.fragment_container, HomeFragment.class,null,HomeFragment.TAG)
                 .setReorderingAllowed(true)
@@ -184,32 +243,19 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
     public void onNavItemProducts(){
-        setArrow(false);
-//        fragmentManager = getSupportFragmentManager();
-//        fragmentManager.beginTransaction()
-//                .remove(new ProductsFragment())
-//                .commit();
-//        fragmentManager.popBackStack();
-//
-//        fragmentManager.beginTransaction()
-//                .remove(new HomeFragment())
-//                .commit();
-//        fragmentManager.popBackStack();
-//
-//        fragmentManager.beginTransaction()
-//                .remove(new ChargeFragment())
-//                .commit();
-//        fragmentManager.popBackStack();
-//
-//        fragmentManager.beginTransaction()
-//                .remove(new CartFragment())
-//                .commit();
-//        fragmentManager.popBackStack();
-
+        showHideActions(ProductsFragment.TAG);
         fragmentManager.beginTransaction()
                 .add(R.id.fragment_container, ProductsFragment.class,null,ProductsFragment.TAG)
                 .setReorderingAllowed(true)
                 .addToBackStack("ProductsFragment")
+                .commit();
+    }
+    private void onNavItemReceipts() {
+        showHideActions(ReceiptFragment.TAG);
+        fragmentManager.beginTransaction()
+                .add(R.id.fragment_container, ReceiptFragment.class,null,ReceiptFragment.TAG)
+                .setReorderingAllowed(true)
+                .addToBackStack("ReceiptFragment")
                 .commit();
     }
 

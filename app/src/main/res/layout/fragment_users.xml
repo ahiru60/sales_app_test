@@ -28,6 +28,7 @@
                 android:background="@null"
                 app:tint="@color/salesBlue" />
             <EditText
+                android:id="@+id/search_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"

@@ -7,10 +7,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.example.salesapp.Adapters.UserListAdapter;
@@ -46,6 +49,7 @@ public class UsersFragment extends Fragment implements UserListAdapter.OnClickLi
     private MainActivity mainActivity;
     private View actionBar;
     private ImageButton actionBarAddUserBtn;
+    private EditText searchUsers;
 
     public UsersFragment() {
         // Required empty public constructor
@@ -93,7 +97,7 @@ public class UsersFragment extends Fragment implements UserListAdapter.OnClickLi
         userListAdapter = new UserListAdapter(this,dbHandler.getUsers());
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(userListAdapter);
-
+        searchUsers = view.findViewById(R.id.search_user);
         addNewUserBtn = view.findViewById(R.id.add_new_userBtn);
         addNewUserBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +109,24 @@ public class UsersFragment extends Fragment implements UserListAdapter.OnClickLi
                             .commit();
             }
         });
+        searchUsers.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                userListAdapter = new UserListAdapter(UsersFragment.this,dbHandler.searchUserByName(s.toString()));
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                recyclerView.setAdapter(userListAdapter);
+            }
+        });
         return view;
     }
 
@@ -112,7 +134,7 @@ public class UsersFragment extends Fragment implements UserListAdapter.OnClickLi
     public User addUserOnClick() {
         mainActivity.backFragments();
         actionBarAddUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_24));
-        mainActivity.setArrow(true);
+        mainActivity.homeSetActions(true);
         return homeFragment.getUser();
 
     }

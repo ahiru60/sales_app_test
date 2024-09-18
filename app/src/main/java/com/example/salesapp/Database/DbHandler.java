@@ -14,15 +14,23 @@ import android.util.Log;
 import com.example.salesapp.Models.DBItem;
 import com.example.salesapp.Models.Discount;
 import com.example.salesapp.Models.Order;
-import com.example.salesapp.Models.OrderItem;
+import com.example.salesapp.Models.Receipt;
 import com.example.salesapp.Models.SessionItem;
 import com.example.salesapp.Models.User;
+import com.example.salesapp.Tools.BitmapQualityReducer;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class DbHandler extends SQLiteOpenHelper {
+
+    private int quality = 90;
+    private int maxWidth = 250;
+    private int maxHeight = 250;
+
     public DbHandler(Context context) {
         super(context, "sales", null, 1);
     }
@@ -30,21 +38,29 @@ public class DbHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String itemsTableCreateQuery = "CREATE TABLE items ("
-                +" 'itemId' INTEGER PRIMARY KEY AUTOINCREMENT, "
-                +"'image' TEXT,"
-                +"'itemName' TEXT,"
+                + " 'itemId' INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "'image' TEXT,"
+                + "'itemName' TEXT,"
                 + "'stock' TEXT,"
                 + "'cost' TEXT,"
                 + "'selling_price' TEXT)";
-        db.execSQL(itemsTableCreateQuery);
+        try {
+            db.execSQL(itemsTableCreateQuery);
+        } catch (SQLException e) {
+            Log.d("DbHandler", "onCreate: " + e);
+        }
         String ordersTableCreateQuery = "CREATE TABLE orders ("
-                +" 'orderId' INTEGER PRIMARY KEY AUTOINCREMENT, "
-                +" 'userId' INTEGER,"
-                +" 'discount' TEXT, "
-                +" 'is_value' INTEGER, "
+                + " 'orderId' INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + " 'userId' INTEGER,"
+                + " 'discount' TEXT, "
+                + " 'is_value' INTEGER, "
                 + "'timeStamp' DATETIME DEFAULT CURRENT_TIMESTAMP,"
                 + "FOREIGN KEY (userId) REFERENCES users(userId))";
-        db.execSQL(ordersTableCreateQuery);
+        try {
+            db.execSQL(ordersTableCreateQuery);
+        } catch (SQLException e) {
+            Log.d("DbHandler", "onCreate: " + e);
+        }
         String orderItemsTableCreateQuery = "CREATE TABLE orderItems ("
                 + "orderItemId INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "orderId INTEGER, "
@@ -54,16 +70,31 @@ public class DbHandler extends SQLiteOpenHelper {
                 + "FOREIGN KEY (itemId) REFERENCES items(itemId))";
         try {
             db.execSQL(orderItemsTableCreateQuery);
-        }catch (SQLException e){
-            Log.d("DbHandler", "onCreate: "+e);
+        } catch (SQLException e) {
+            Log.d("DbHandler", "onCreate: " + e);
         }
         String usersTableCreateQuery = "CREATE TABLE users ("
-                +" 'userId' INTEGER PRIMARY KEY AUTOINCREMENT, "
-                +"'image_url' TEXT,"
-                +"'user_name' TEXT,"
+                + " 'userId' INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "'image_url' TEXT,"
+                + "'user_name' TEXT,"
                 + "'gender' TEXT,"
                 + "'location' TEXT)";
-        db.execSQL(usersTableCreateQuery);
+        try {
+            db.execSQL(usersTableCreateQuery);
+        } catch (SQLException e) {
+            Log.d("DbHandler", "onCreate: " + e);
+        }
+        String receiptTableCreateQuery = "CREATE TABLE receipts ("
+                + "'receiptId' INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "'total_amount' TEXT,"
+                + "'userId' TEXT,"
+                + "'timeStamp' DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY (userId) REFERENCES users(userId))";
+        try {
+            db.execSQL(receiptTableCreateQuery);
+        } catch (SQLException e) {
+            Log.d("DbHandler", "onCreate: " + e);
+        }
 //        addItemtoItems("Apple", "1500", "3");
 //        addItemtoItems("Orange", "1000", "2");
 //        addItemtoItems("Mango", "1000", "3");
@@ -72,124 +103,208 @@ public class DbHandler extends SQLiteOpenHelper {
 //        addItemtoItems("Candles", "500", "2");
     }
 
-    public void addItemtoItems(Bitmap imageBtmp,String itemName, String stock, String cost, String selling_price){
+    public void saveReceipt(Receipt receipt){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("total_amount",receipt.getTotal_amount());
+        values.put("userId",receipt.getTotal_amount());
+        db.insert("receipts", null, values);
+    }
+    public ArrayList<Receipt> getReceipts() {
+        ArrayList<Receipt> receipts = new ArrayList<>();
+        ArrayList<Receipt> formatedReceipts = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM receipts;", null);
+        if (cursor.moveToFirst()) {
+            do {
+                Bitmap bitmap = readImage(cursor.getString(1));
+                receipts.add(new Receipt(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3)));
+            } while (cursor.moveToNext());
+        }
+//        Collections.sort(receipts, new Comparator<Receipt>() {
+//            @Override
+//            public int compare(Receipt r1, Receipt r2) {
+//                int time1 = Integer.parseInt(r1.getTimestamp().replace("-: ", ""));
+//                int time2 = Integer.parseInt(r2.getTimestamp().replace("-: ", ""));
+//                return Integer.compare(time1, time2);
+//            }
+//        });
+        String date = "";
+        for(Receipt receipt : receipts){
+            if(!date.equals(receipt.getTimestamp().split(" ")[0])){
+                date = receipt.getTimestamp().split(" ")[0];
+                Receipt receipt1 = new Receipt(null,null,null,receipt.getTimestamp());
+                receipt1.setOnlyDate(true);
+                formatedReceipts.add(receipt1);
+                formatedReceipts.add(receipt);
+
+            }else{
+                formatedReceipts.add(receipt);
+            }
+        }
+
+        return formatedReceipts;
+    }
+
+    public void addItemtoItems(Bitmap imageBtmp, String itemName, String stock, String cost, String selling_price) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        if(imageBtmp != null){
-            String imageURL = saveImage(imageBtmp,itemName);
-            values.put("image",imageURL);
-        }else{
-            values.put("image","");
+        if (imageBtmp != null) {
+            String imageURL = saveImage(imageBtmp, itemName);
+            values.put("image", imageURL);
+        } else {
+            values.put("image", "");
         }
-        values.put("itemName",itemName);
-        values.put("stock",stock);
-        values.put("cost",cost);
-        values.put("selling_price",selling_price);
-        db.insert("items",null,values);
+        values.put("itemName", itemName);
+        values.put("stock", stock);
+        values.put("cost", cost);
+        values.put("selling_price", selling_price);
+        db.insert("items", null, values);
     }
-    public boolean updateItem(String itemId,Bitmap imageBtmp,String itemName, String stock, String cost, String selling_price){
+
+    public boolean updateItem(String itemId, Bitmap imageBtmp, String itemName, String stock, String cost, String selling_price) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        String[] whereArgs = new String[] { String.valueOf(itemId) };
-        if(imageBtmp != null){
-            String imageURL = saveImage(imageBtmp,itemName);
-            values.put("image",imageURL);
-        }else{
-            values.put("image","");
+        String[] whereArgs = new String[]{String.valueOf(itemId)};
+        if (imageBtmp != null) {
+            String imageURL = saveImage(imageBtmp, itemName);
+            values.put("image", imageURL);
+        } else {
+            values.put("image", "");
         }
-        values.put("itemName",itemName);
-        values.put("stock",stock);
-        values.put("cost",cost);
-        values.put("selling_price",selling_price);
-        int rowsAffected = db.update("items",values,"itemId=?",whereArgs);
-        if(rowsAffected > 0){
+        values.put("itemName", itemName);
+        values.put("stock", stock);
+        values.put("cost", cost);
+        values.put("selling_price", selling_price);
+        int rowsAffected = db.update("items", values, "itemId=?", whereArgs);
+        if (rowsAffected > 0) {
             return true;
         }
         return false;
     }
 
-    public ArrayList<DBItem> getItems(){
+    public ArrayList<DBItem> getItems() {
         ArrayList<DBItem> items = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM items;", null);
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 Bitmap bitmap = readImage(cursor.getString(1));
-                items.add(new DBItem(bitmap,cursor.getString(0),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5)));
-            }while(cursor.moveToNext());
-        }
-        return items;
-    }
-    public ArrayList<DBItem> getItemById(String itemId){
-        ArrayList<DBItem> items = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM items WHERE itemId = ?;",new String[]{itemId});
-        if(cursor.moveToFirst()){
-            do{
-                Bitmap bitmap = readImage(cursor.getString(1));
-                items.add(new DBItem(bitmap,cursor.getString(0),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5)));
-            }while(cursor.moveToNext());
+                items.add(new DBItem(bitmap, cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
+            } while (cursor.moveToNext());
         }
         return items;
     }
 
-    public ArrayList<DBItem> searchItemByName(String keyword){
+    public ArrayList<DBItem> getItemById(String itemId) {
+        ArrayList<DBItem> items = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM items WHERE itemId = ?;", new String[]{itemId});
+        if (cursor.moveToFirst()) {
+            do {
+                Bitmap bitmap = readImage(cursor.getString(1));
+                items.add(new DBItem(bitmap, cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
+            } while (cursor.moveToNext());
+        }
+        return items;
+    }
+
+    public ArrayList<DBItem> searchItemByName(String keyword) {
         ArrayList<DBItem> items = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM items WHERE itemName LIKE ?", new String[]{"%" + keyword + "%"});
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 Bitmap bitmap = readImage(cursor.getString(1));
-                items.add(new DBItem(bitmap,cursor.getString(0),cursor.getString(2),cursor.getString(3),cursor.getString(4),cursor.getString(5)));
-            }while(cursor.moveToNext());
+                items.add(new DBItem(bitmap, cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
+            } while (cursor.moveToNext());
+        }
+        return items;
+    }
+    public ArrayList<User> searchUserByName(String keyword) {
+        ArrayList<User> items = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE user_name LIKE ? OR userId LIKE ? OR location LIKE ? OR gender LIKE ?", new String[]{"%" + keyword + "%","%" + keyword + "%","%" + keyword + "%","%" + keyword + "%"});
+        if (cursor.moveToFirst()) {
+            do {
+                items.add(new User(cursor.getString(0),readImage(cursor.getString(1)),cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
+            } while (cursor.moveToNext());
+        }
+        return items;
+    }String receiptTableCreateQuery = "CREATE TABLE receipts ("
+            + "'receiptId' INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + "'total_amount' TEXT,"
+            + "'userId' TEXT,"
+            + "'timeStamp' DATETIME DEFAULT CURRENT_TIMESTAMP,"
+            + "FOREIGN KEY (userId) REFERENCES users(userId))";
+    public ArrayList<User> searchReceiptByName(String keyword,String timestamp) {
+        ArrayList<User> items = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        if(timestamp.equals(null)){
+            Cursor cursor = db.rawQuery("SELECT * FROM receipts WHERE receiptId LIKE ? OR total_amount LIKE ?", new String[]{"%" + keyword + "%","%" + keyword + "%"});
+            if (cursor.moveToFirst()) {
+                do {
+                    items.add(new User(cursor.getString(0),readImage(cursor.getString(1)),cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
+                } while (cursor.moveToNext());
+            }
+            return items;
+        }
+        Cursor cursor = db.rawQuery("SELECT * FROM receipts WHERE timeStamp LIKE ? AND (receiptId LIKE ? OR total_amount LIKE ?)", new String[]{"%" + timestamp + "%","%" + keyword + "%","%" + keyword + "%"});
+        if (cursor.moveToFirst()) {
+            do {
+                items.add(new User(cursor.getString(0),readImage(cursor.getString(1)),cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
+            } while (cursor.moveToNext());
         }
         return items;
     }
 
-    public void saveOrder(ArrayList<SessionItem> order,String discount,boolean isValue,String userId){
+    public void saveOrder(ArrayList<SessionItem> order, String discount, boolean isValue, String userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        if(discount != null){
-            values.put("discount",discount);
-            if(isValue){
-                values.put("is_value",1);
-            }else {
-                values.put("is_value",0);
+        if (discount != null) {
+            values.put("discount", discount);
+            if (isValue) {
+                values.put("is_value", 1);
+            } else {
+                values.put("is_value", 0);
             }
-        }else{
-            values.put("discount","0");
+        } else {
+            values.put("discount", "0");
         }
-        if(userId != null){
-            values.put("userId",userId);
-        }else {
-            values.put("userId","");
+        if (userId != null) {
+            values.put("userId", userId);
+        } else {
+            values.put("userId", "");
         }
         long orderId = db.insert("orders", null, values);
 
-        if(orderId != -1){
-            for(SessionItem item : order){
+        if (orderId != -1) {
+            for (SessionItem item : order) {
                 values.clear();
-                values.put("orderId",orderId);
-                values.put("itemId",item.getItemId());
-                values.put("quantity",item.getQuantity());
-                db.insert("orderItems",null,values);
+                values.put("orderId", orderId);
+                values.put("itemId", item.getItemId());
+                values.put("quantity", item.getQuantity());
+                db.insert("orderItems", null, values);
                 values.clear();
             }
         }
+
     }
-    public ArrayList<Order> getOrders(){
+
+    public ArrayList<Order> getOrders() {
         ArrayList<Order> orders = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM orders;", null);
-        if(cursor.moveToFirst()){
-            do{
-                orders.add(new Order(cursor.getString(0),cursor.getString(1),cursor.getString(4)));
-            }while(cursor.moveToNext());
+        if (cursor.moveToFirst()) {
+            do {
+                orders.add(new Order(cursor.getString(0), cursor.getString(1), cursor.getString(4)));
+            } while (cursor.moveToNext());
         }
         return orders;
     }
-    public ArrayList<SessionItem> getOrder(User user, String orderId){
+
+    public ArrayList<SessionItem> getOrder(User user, String orderId) {
         ArrayList<SessionItem> items = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String[] arg = {orderId};
@@ -222,27 +337,27 @@ public class DbHandler extends SQLiteOpenHelper {
                 "WHERE" +
                 "    o.orderId = ?;";
 
-        Cursor cursor = db.rawQuery(query,arg);
-        if(cursor.moveToFirst()){
+        Cursor cursor = db.rawQuery(query, arg);
+        if (cursor.moveToFirst()) {
             user.setUserName(cursor.getString(13));
             user.setUserId(cursor.getString(12));
             user.setGender(cursor.getString(14));
             user.setLocation(cursor.getString(15));
-            if(cursor.getString(16) != null){
+            if (cursor.getString(16) != null) {
                 user.setImage(readImage(cursor.getString(16)));
             }
             Discount discount = new Discount();
             String isValue = cursor.getString(2);
-            if(isValue.equals("1")){
+            if (isValue.equals("1")) {
                 discount.setValue(Double.valueOf(cursor.getString(1)));
             }
-            if(isValue.equals("0")){
+            if (isValue.equals("0")) {
                 discount.setPercentage(Double.valueOf(cursor.getString(1)));
             }
             user.setDiscount(discount);
-            do{
-                items.add(new SessionItem(cursor.getString(6),null,cursor.getString(7),cursor.getString(5),cursor.getString(11)));
-            }while(cursor.moveToNext());
+            do {
+                items.add(new SessionItem(cursor.getString(6), null, cursor.getString(7), cursor.getString(5), cursor.getString(11)));
+            } while (cursor.moveToNext());
 
         }
 
@@ -250,80 +365,95 @@ public class DbHandler extends SQLiteOpenHelper {
         return items;
     }
 
-    public ArrayList<Order> searchOrders(String keyword){
+    public ArrayList<Order> searchOrders(String keyword) {
         ArrayList<Order> orders = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM orders WHERE orderId LIKE ? OR user LIKE ? OR timeStamp LIKE ?", new String[]{"%" + keyword + "%","%" + keyword + "%","%" + keyword + "%"});
-        if(cursor.moveToFirst()){
-            do{
-                orders.add(new Order(cursor.getString(0),cursor.getString(1),cursor.getString(4)));
-            }while(cursor.moveToNext());
+        Cursor cursor = db.rawQuery("SELECT * FROM orders WHERE orderId LIKE ? OR userId LIKE ? OR timeStamp LIKE ?", new String[]{"%" + keyword + "%", "%" + keyword + "%", "%" + keyword + "%"});
+        if (cursor.moveToFirst()) {
+            do {
+                orders.add(new Order(cursor.getString(0), cursor.getString(1), cursor.getString(4)));
+            } while (cursor.moveToNext());
         }
         return orders;
     }
-    public void updateOrder(String orderId,String userId, ArrayList<SessionItem> userCartItems){
+
+    public void updateOrder(String orderId, String userId, ArrayList<SessionItem> userCartItems, String discount, boolean isValue) {
         SQLiteDatabase db = this.getWritableDatabase();
-        for(SessionItem item :userCartItems){
+        for (SessionItem item : userCartItems) {
             ContentValues values = new ContentValues();
-            values.put("quantity",item.getQuantity());
-           int rowsAffected = db.update("orderItems",values,"ItemId = ? AND orderId = ?",new String []{item.getItemId(),orderId});
-           if(rowsAffected<1){
-               values.clear();
-               values.put("orderId",orderId);
-               values.put("itemId",item.getItemId());
-               values.put("quantity",item.getQuantity());
-               db.insert("orderItems",null,values);
-           }
+            values.put("quantity", item.getQuantity());
+            int rowsAffected = db.update("orderItems", values, "ItemId = ? AND orderId = ?", new String[]{item.getItemId(), orderId});
+            if (rowsAffected < 1) {
+                values.clear();
+                values.put("orderId", orderId);
+                values.put("itemId", item.getItemId());
+                values.put("quantity", item.getQuantity());
+                db.insert("orderItems", null, values);
+            }
         }
-        if(userId != null){
+        if (userId != null) {
             ContentValues values = new ContentValues();
-            values.put("userId",userId);
-            db.update("orders",values,"orderId = ?",new String[]{orderId});
+            values.put("userId", userId);
+            db.update("orders", values, "orderId = ?", new String[]{orderId});
+        } else {
+            ContentValues values = new ContentValues();
+            values.put("userId", "");
+            db.update("orders", values, "orderId = ?", new String[]{orderId});
+        }
+        if (discount != null) {
+            ContentValues values = new ContentValues();
+            values.put("is_value", isValue);
+            values.put("discount", discount);
+            db.update("orders", values, "orderId = ?", new String[]{orderId});
         }
     }
-public void deleteOrder(String orderId){
-    SQLiteDatabase db = this.getWritableDatabase();
-    db.execSQL("PRAGMA foreign_keys = ON;");
-    db.delete("orders","orderId = ?",new String[]{ orderId });
-}
 
-    public long addUser(Bitmap image,String userName,String gender,String location){
+    public void deleteOrder(String orderId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("PRAGMA foreign_keys = ON;");
+        db.delete("orders", "orderId = ?", new String[]{orderId});
+    }
+
+    public long addUser(Bitmap image, String userName, String gender, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         long userId;
 
-        values.put("image_url",saveImage(image,userName));
-        values.put("user_name",userName);
-        values.put("gender",gender);
-        values.put("location",location);
-        userId = db.insert("users",null,values);
+        values.put("image_url", saveImage(image, userName));
+        values.put("user_name", userName);
+        values.put("gender", gender);
+        values.put("location", location);
+        userId = db.insert("users", null, values);
         return userId;
 
     }
-    public ArrayList<User> getUsers(){
+
+    public ArrayList<User> getUsers() {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<User> users = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM users",null);
-        if(cursor.moveToNext()){
-            do{
-               Bitmap image = readImage(cursor.getString(1));
-                users.add(new User(cursor.getString(0),image,cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
-            }while(cursor.moveToNext());
+        Cursor cursor = db.rawQuery("SELECT * FROM users", null);
+        if (cursor.moveToNext()) {
+            do {
+                Bitmap image = readImage(cursor.getString(1));
+                users.add(new User(cursor.getString(0), image, cursor.getString(2), cursor.getString(3), cursor.getString(4), null, null));
+            } while (cursor.moveToNext());
         }
         return users;
     }
-    public Bitmap getUserImage(String userId){
+
+    public Bitmap getUserImage(String userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<User> users = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT image_url FROM users WHERE userId = ?",new String[]{userId});
+        Cursor cursor = db.rawQuery("SELECT image_url FROM users WHERE userId = ?", new String[]{userId});
         Bitmap image = null;
-        if(cursor.moveToNext()){
-            do{
+        if (cursor.moveToNext()) {
+            do {
                 image = readImage(cursor.getString(1));
-               }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         return image;
     }
+
     public void deleteTable(String tableName) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -332,6 +462,7 @@ public void deleteOrder(String orderId){
 
         db.execSQL(dropTableQuery);
     }
+
     public void deleteDatabase(Context context) {
         context.deleteDatabase("sales.db");
     }
@@ -343,14 +474,15 @@ public void deleteOrder(String orderId){
         db.execSQL("DROP TABLE IF EXISTS cart");
         onCreate(db);
     }
-    private String saveImage(Bitmap finalBitmap,String productName) {
+
+    private String saveImage(Bitmap finalBitmap, String productName) {
         String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/SalesApp/images/";
         path = path + productName.toLowerCase() + ".jpg";
-        File file = new File (path);
+        File file = new File(path);
         if (!file.exists()) {
             file.mkdirs();  // This will create the folder and any necessary parent directories
         }
-        if (file.exists ()) file.delete ();
+        if (file.exists()) file.delete();
         try {
             FileOutputStream out = new FileOutputStream(file);
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
@@ -361,13 +493,14 @@ public void deleteOrder(String orderId){
         }
         return path;
     }
-    private Bitmap readImage(String ImageURL){
-        Bitmap bitmap = null;
-        if(!ImageURL.equals(null)){
-            File imgFile = new  File(ImageURL);
 
-            if(imgFile.exists()){
-                bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+    private Bitmap readImage(String ImageURL) {
+        Bitmap bitmap = null;
+        if (!ImageURL.equals(null)) {
+            File imgFile = new File(ImageURL);
+
+            if (imgFile.exists()) {
+                bitmap = BitmapQualityReducer.reduceBitmapQualityAndSize(BitmapFactory.decodeFile(imgFile.getAbsolutePath()), quality, maxWidth, maxHeight);
             }
         }
         return bitmap;

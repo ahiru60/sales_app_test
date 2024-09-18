@@ -1,6 +1,7 @@
 package com.example.salesapp.Adapters;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,9 @@ import com.example.salesapp.Models.DBItem;
 import com.example.salesapp.Models.SessionItem;
 import com.example.salesapp.Models.User;
 import com.example.salesapp.R;
+import com.example.salesapp.Tools.BitmapQualityReducer;
 
+import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -72,11 +75,9 @@ public class DbItemsListAdapter extends RecyclerView.Adapter<DbItemsListAdapter.
                     }
                     if(!isFound){
                         userCartItems.add(new SessionItem(itemId,imageBtmp,itemName,"1",rawPrice));
-                        System.out.println("df");
                     }
                 }else{
                     userCartItems.add(new SessionItem(itemId,imageBtmp,itemName,"1",rawPrice));
-                    System.out.println("df");
                 }
                 onClickListener.afterItemClick();
             }

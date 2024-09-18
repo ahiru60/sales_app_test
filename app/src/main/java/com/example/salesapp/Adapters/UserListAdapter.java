@@ -15,6 +15,7 @@ import com.example.salesapp.Fragments.UsersFragment;
 import com.example.salesapp.MainActivity;
 import com.example.salesapp.Models.User;
 import com.example.salesapp.R;
+import com.example.salesapp.Tools.BitmapQualityReducer;
 
 import java.util.ArrayList;
 

@@ -140,11 +140,11 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mainActivity.setArrow(true);
-    }
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        mainActivity.homeSetActions(true);
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -183,7 +183,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
 
     private void setupViews() {
         mainActivity = (MainActivity) getActivity();
-        mainActivity.setArrow(true);
+        mainActivity.homeSetActions(true);
         fragmentManager = getParentFragmentManager();
         actionBar = mainActivity.getSupportActionBar().getCustomView();
         discountBtn = actionBar.findViewById(R.id.discountBtn);
@@ -497,7 +497,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                         .commit();
 
                 System.out.println("h");
-                mainActivity.setArrow(false);
+                mainActivity.homeSetActions(false);
 
             }
         });
@@ -505,19 +505,20 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
             @Override
             public void onClick(View v) {
                 int size = user.getUserItems().size();
+                String discount = "0";
+                boolean isValue = false;
+                if(user.getDiscount() != null){
+                    discount = user.getDiscount().getDiscount().toString();
+                    isValue = user.getDiscount().isValue();
+                }
                 if(size > 0){
                     if(user.getOrderId() == null){
-                        String discount = "0";
-                        boolean isValue = false;
-                        if(user.getDiscount() != null){
-                            discount = user.getDiscount().getDiscount().toString();
-                            isValue = user.getDiscount().isValue();
-                        }
-                        dbHandler.saveOrder(user.getUserItems(),discount,isValue, user.getUserId());
+
+                        dbHandler.saveOrder(user.getUserItems(),discount,isValue,user.getUserId());
                         user.getUserItems().clear();
 
                     }else{
-                        dbHandler.updateOrder(user.getOrderId(),user.getUserId(),user.getUserItems());
+                        dbHandler.updateOrder(user.getOrderId(),user.getUserId(),user.getUserItems(),discount,isValue);
                     }
                     cartBackArrow.setVisibility(View.GONE);
                     user = new User(null,null,null,null,null,null,null);
@@ -543,7 +544,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                     isCarting = false;
                     hideCartView(true);
                     cartBackArrow.setVisibility(View.GONE);
-                    mainActivity.setArrow(false);
+                    mainActivity.homeSetActions(false);
                     Fragment fragment = fragmentManager.findFragmentByTag(UserFragment.TAG);
                     if(fragment == null){
                     fragmentManager.beginTransaction()
@@ -564,7 +565,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                     isCarting = false;
                     hideCartView(true);
                     cartBackArrow.setVisibility(View.GONE);
-                    mainActivity.setArrow(false);
+                    mainActivity.homeSetActions(false);
                     Fragment fragment = fragmentManager.findFragmentByTag(UsersFragment.TAG);
                     if(fragment == null){
                         fragmentManager.beginTransaction()
@@ -600,6 +601,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
             @Override
             public void onClick(View v) {
                 if (!isCarting) {
+                    mainActivity.presstime = 0;
                     cartBackArrow.setVisibility(View.VISIBLE);
                     hideCartView(false);
                     mainActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(false);

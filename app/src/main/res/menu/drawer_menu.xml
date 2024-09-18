@@ -7,6 +7,9 @@
         android:id="@+id/nav_products"
         android:title="Products" />
     <item
+        android:id="@+id/nav_receipt"
+        android:title="Receipts" />
+    <item
         android:id="@+id/nav_account"
         android:title="My Account" />
 

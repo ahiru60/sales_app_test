@@ -77,11 +77,12 @@ public class PaymentFragment extends Fragment {
         OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
             @Override
             public void handleOnBackPressed() {
-                mainActivity.setArrow(true);
-                fragmentManager.beginTransaction()
-                        .remove(new PaymentFragment())
-                        .commit();
-                fragmentManager.popBackStack();
+//                mainActivity.setArrow(true);
+//                fragmentManager.beginTransaction()
+//                        .remove(new PaymentFragment())
+//                        .commit();
+//                fragmentManager.popBackStack();
+                mainActivity.backFragments();
 
             }
         };
