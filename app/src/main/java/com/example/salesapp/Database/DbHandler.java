@@ -232,28 +232,23 @@ public class DbHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         return items;
-    }String receiptTableCreateQuery = "CREATE TABLE receipts ("
-            + "'receiptId' INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + "'total_amount' TEXT,"
-            + "'userId' TEXT,"
-            + "'timeStamp' DATETIME DEFAULT CURRENT_TIMESTAMP,"
-            + "FOREIGN KEY (userId) REFERENCES users(userId))";
-    public ArrayList<User> searchReceiptByName(String keyword,String timestamp) {
-        ArrayList<User> items = new ArrayList<>();
+    }
+    public ArrayList<Receipt> searchReceiptByName(String keyword,String timestamp) {
+        ArrayList<Receipt> items = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        if(timestamp.equals(null)){
+        if(timestamp.equals("")){
             Cursor cursor = db.rawQuery("SELECT * FROM receipts WHERE receiptId LIKE ? OR total_amount LIKE ?", new String[]{"%" + keyword + "%","%" + keyword + "%"});
             if (cursor.moveToFirst()) {
                 do {
-                    items.add(new User(cursor.getString(0),readImage(cursor.getString(1)),cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
+                    items.add(new Receipt(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3)));
                 } while (cursor.moveToNext());
             }
             return items;
         }
-        Cursor cursor = db.rawQuery("SELECT * FROM receipts WHERE timeStamp LIKE ? AND (receiptId LIKE ? OR total_amount LIKE ?)", new String[]{"%" + timestamp + "%","%" + keyword + "%","%" + keyword + "%"});
+        Cursor cursor = db.rawQuery("SELECT * FROM receipts WHERE timeStamp LIKE ? AND (receiptId LIKE ? OR total_amount LIKE ?)", new String[]{timestamp + "%","%" + keyword + "%","%" + keyword + "%"});
         if (cursor.moveToFirst()) {
             do {
-                items.add(new User(cursor.getString(0),readImage(cursor.getString(1)),cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
+                items.add(new Receipt(cursor.getString(0),cursor.getString(1),cursor.getString(2),cursor.getString(3)));
             } while (cursor.moveToNext());
         }
         return items;

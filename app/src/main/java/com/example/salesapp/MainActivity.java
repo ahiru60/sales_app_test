@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.salesapp.Database.DbHandler;
 import com.example.salesapp.Fragments.ChargeFragment;
+import com.example.salesapp.Fragments.DatePickerFragment;
 import com.example.salesapp.Fragments.HomeFragment;
 import com.example.salesapp.Fragments.ProductsFragment;
 import com.example.salesapp.Fragments.ReceiptFragment;
@@ -80,7 +81,12 @@ public class MainActivity extends AppCompatActivity {
                 backFragments();
             }
         });
-
+        dateRange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new DatePickerFragment().show(getSupportFragmentManager(), "datePicker");
+            }
+        });
     }
     public int presstime = 0;
     public void backFragments(){
@@ -89,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager.BackStackEntry backStackEntry = fragmentManager.getBackStackEntryAt(backStackCount-1);
         String fragmentTag = backStackEntry.getName();
         Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
+
         if(fragment instanceof ChargeFragment){
             presstime = 0;
             onNavItemHome();
@@ -114,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         backStackCount = fragmentManager.getBackStackEntryCount();
         if(backStackCount<3){
             homeSetActions(true);
+            showHideActions("HomeFragment");
         }
 //        if(backStackCount < 2){
 //            presstime++;

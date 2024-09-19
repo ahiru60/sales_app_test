@@ -38,6 +38,7 @@ public class ReceiptFragment extends Fragment {
     private DbHandler dbHandler;
     private LinearLayoutManager linearLayoutManager;
     private EditText searchReceipts;
+    public String searchTime = "";
 
     public ReceiptFragment() {
         // Required empty public constructor
@@ -78,7 +79,7 @@ public class ReceiptFragment extends Fragment {
         dbHandler = new DbHandler(getContext());
         linearLayoutManager = new LinearLayoutManager(getContext());
         receiptRecyclerView = view.findViewById(R.id.receiptRecyclerView);
-        receiptsAdapter = new ReceiptsAdapter(dbHandler.getReceipts());
+        receiptsAdapter = new ReceiptsAdapter(dbHandler.getReceipts(),true);
         receiptRecyclerView.setLayoutManager(linearLayoutManager);
         receiptRecyclerView.setAdapter(receiptsAdapter);
         searchReceipts = view.findViewById(R.id.search_receipt);
@@ -95,10 +96,17 @@ public class ReceiptFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-//                receiptsAdapter = new ReceiptsAdapter(dbHandler.searchReceiptByName(s.toString(),));
-//                receiptRecyclerView.setLayoutManager(linearLayoutManager);
-//                receiptRecyclerView.setAdapter(receiptsAdapter);
-//                searchReceipts = view.findViewById(R.id.search_receipt);
+                if(s.toString().length()>0){
+                    receiptsAdapter = new ReceiptsAdapter(dbHandler.searchReceiptByName(s.toString(),searchTime),false);
+                    receiptRecyclerView.setLayoutManager(linearLayoutManager);
+                    receiptRecyclerView.setAdapter(receiptsAdapter);
+                    searchReceipts = view.findViewById(R.id.search_receipt);
+                }else {
+                    receiptsAdapter = new ReceiptsAdapter(dbHandler.getReceipts(),true);
+                    receiptRecyclerView.setLayoutManager(linearLayoutManager);
+                    receiptRecyclerView.setAdapter(receiptsAdapter);
+                    searchReceipts = view.findViewById(R.id.search_receipt);
+                }
             }
         });
         return view;

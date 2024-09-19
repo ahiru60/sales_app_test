@@ -79,7 +79,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
     private View actionBar, discountCustomLayout,productCustomLayout,orderCustomLayout;
     private FrameLayout searchBar;
     private EditText searchEditText, totalEditTxt, orderSearchEditText;
-    private TextView cartItemsNumber, totalTxt,discountTxt,DbxProductName,DbxStock,DbxProductCode,DbxProductPrice,DbxProductCost;
+    private TextView cartItemsNumber,totalTxt,discountTxt,DbxProductName,DbxStock,DbxProductCode,DbxProductPrice,DbxProductCost;
     private MainActivity mainActivity;
     private LinearLayout viewCartBtn, listsView, salesViews, paymentView;
     private ConstraintLayout cartViewsHolder;

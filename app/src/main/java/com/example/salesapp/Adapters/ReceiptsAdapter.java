@@ -19,8 +19,10 @@ import java.util.List;
 public class ReceiptsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
    private ArrayList<Receipt> receipts;
    private static String TAG = "ReceiptAdapter";
-    public ReceiptsAdapter(ArrayList<Receipt> receipts) {
+   private boolean hideDate = true;
+    public ReceiptsAdapter(ArrayList<Receipt> receipts,boolean hideDate) {
         this.receipts = receipts;
+        this.hideDate = hideDate;
     }
     private String[] dateTime = {"",""};
 
@@ -52,6 +54,12 @@ public class ReceiptsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder instanceof ReceiptViewHolder) {
             ((ReceiptViewHolder) holder).receipt.setText(receipts.get(holder.getAdapterPosition()).getReceiptId());
             ((ReceiptViewHolder) holder).price.setText(receipts.get(holder.getAdapterPosition()).getTotal_amount());
+            if(!hideDate){
+                ((ReceiptViewHolder) holder).date.setVisibility(View.VISIBLE);
+                ((ReceiptViewHolder) holder).date.setText(receipts.get(holder.getAdapterPosition()).getTimestamp().split(" ")[0]);
+            }else{
+                ((ReceiptViewHolder) holder).date.setVisibility(View.GONE);
+            }
             ((ReceiptViewHolder) holder).time.setText(receipts.get(holder.getAdapterPosition()).getTimestamp().split(" ")[1]);
 
         } else if (holder instanceof TimestampViewHolder) {
@@ -67,12 +75,13 @@ public class ReceiptsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public class ReceiptViewHolder extends RecyclerView.ViewHolder{
-        private TextView receipt,time,price;
+        private TextView receipt,time,price,date;
         public ReceiptViewHolder(@NonNull View itemView) {
             super(itemView);
             receipt = itemView.findViewById(R.id.receipt);
             time = itemView.findViewById(R.id.time);
             price = itemView.findViewById(R.id.price);
+            date = itemView.findViewById(R.id.date);
 
         }
     }
