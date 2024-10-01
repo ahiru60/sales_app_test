@@ -22,14 +22,9 @@ import com.example.salesapp.R;
  * create an instance of this fragment.
  */
 public class UserFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     public static final String TAG = "UserFragment";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private User user;
@@ -42,16 +37,6 @@ public class UserFragment extends Fragment {
     public UserFragment() {
         // Required empty public constructor
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment UserFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static UserFragment newInstance(String param1, String param2) {
         UserFragment fragment = new UserFragment();
         Bundle args = new Bundle();
@@ -91,11 +76,6 @@ public class UserFragment extends Fragment {
         removeUserBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                user.setUserId(null);
-//                user.setLocation(null);
-//                user.setGender(null);
-//                user.setImage(null);
-//                user.setUserName(null);
                 homeFragment.removeUser();
 
             }

@@ -3,6 +3,7 @@ package com.example.salesapp.Fragments;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -20,21 +21,10 @@ import com.example.salesapp.R;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link PaymentFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class PaymentFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     public static final String TAG = "PaymentFragment";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private View view;
@@ -48,16 +38,6 @@ public class PaymentFragment extends Fragment {
     public PaymentFragment() {
         // Required empty public constructor
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PaymentFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static PaymentFragment newInstance(String param1, String param2) {
         PaymentFragment fragment = new PaymentFragment();
         Bundle args = new Bundle();
@@ -115,42 +95,42 @@ public class PaymentFragment extends Fragment {
 
     private void setupBtnClicks(){
         user.setPaymentMethod("Cash");
-        cashBtn.setBackground(getResources().getDrawable(R.drawable.button_bg_selected));
-        cashBtn.setTextColor(getResources().getColor(R.color.black));
+        cashBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.button_bg_selected));
+        cashBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.black));
         cardBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 user.setPaymentMethod("Card");
-                cardBtn.setBackground(getResources().getDrawable(R.drawable.button_bg_selected));
-                cashBtn.setBackground(getResources().getDrawable(R.drawable.white_round_squre));
-                reditBtn.setBackground(getResources().getDrawable(R.drawable.white_round_squre));
-                cardBtn.setTextColor(getResources().getColor(R.color.black));
-                cashBtn.setTextColor(getResources().getColor(R.color.white));
-                reditBtn.setTextColor(getResources().getColor(R.color.white));
+                cardBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.button_bg_selected));
+                cashBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.white_round_squre));
+                reditBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.white_round_squre));
+                cardBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.black));
+                cashBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.white));
+                reditBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.white));
             }
         });
         cashBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 user.setPaymentMethod("Cash");
-                cardBtn.setBackground(getResources().getDrawable(R.drawable.white_round_squre));
-                cashBtn.setBackground(getResources().getDrawable(R.drawable.button_bg_selected));
-                reditBtn.setBackground(getResources().getDrawable(R.drawable.white_round_squre));
-                cardBtn.setTextColor(getResources().getColor(R.color.white));
-                cashBtn.setTextColor(getResources().getColor(R.color.black));
-                reditBtn.setTextColor(getResources().getColor(R.color.white));
+                cardBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.white_round_squre));
+                cashBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.button_bg_selected));
+                reditBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.white_round_squre));
+                cardBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.white));
+                cashBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.black));
+                reditBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.white));
             }
         });
         reditBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 user.setPaymentMethod("Redit");
-                cardBtn.setBackground(getResources().getDrawable(R.drawable.white_round_squre));
-                cashBtn.setBackground(getResources().getDrawable(R.drawable.white_round_squre));
-                reditBtn.setBackground(getResources().getDrawable(R.drawable.button_bg_selected));
-                cardBtn.setTextColor(getResources().getColor(R.color.white));
-                cashBtn.setTextColor(getResources().getColor(R.color.white));
-                reditBtn.setTextColor(getResources().getColor(R.color.black));
+                cardBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.white_round_squre));
+                cashBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.white_round_squre));
+                reditBtn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.button_bg_selected));
+                cardBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.white));
+                cashBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.white));
+                reditBtn.setTextColor(ContextCompat.getColor(getContext(),R.color.black));
             }
         });
         chargeBtn.setOnClickListener(new View.OnClickListener() {

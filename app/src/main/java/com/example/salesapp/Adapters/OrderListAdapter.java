@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.salesapp.Dialogs.OrderDialogFragment;
 import com.example.salesapp.Models.Order;
 import com.example.salesapp.Models.SessionItem;
 import com.example.salesapp.R;
@@ -19,6 +20,7 @@ public class OrderListAdapter extends RecyclerView.Adapter<OrderListAdapter.View
     private ArrayList<Order> items;
     private OnClickListner onClickListener;
     private DbItemsListAdapter.OnClickListener dbOnClickListener;
+    private OrderDialogFragment orderDialogFragment;
     public OrderListAdapter(OnClickListner onClickListener,DbItemsListAdapter.OnClickListener dbOnClickListener, ArrayList<Order> items) {
         this.onClickListener = onClickListener;
         this.dbOnClickListener = dbOnClickListener;
@@ -40,8 +42,9 @@ public class OrderListAdapter extends RecyclerView.Adapter<OrderListAdapter.View
         holder.editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onClickListener.orderItemClick(item.getOrderId());
+                orderDialogFragment= onClickListener.orderItemClick(item.getOrderId());
                 dbOnClickListener.afterItemClick();
+                orderDialogFragment.dismiss();
             }
         });
     }
@@ -64,7 +67,7 @@ public class OrderListAdapter extends RecyclerView.Adapter<OrderListAdapter.View
         }
     }
     public interface OnClickListner {
-        public void orderItemClick(String orderId);
+        public OrderDialogFragment orderItemClick(String orderId);
 
     }
 }

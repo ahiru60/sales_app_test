@@ -2,6 +2,8 @@ package com.example.salesapp.Models;
 
 import android.graphics.Bitmap;
 
+import com.example.salesapp.Tools.BitmapReader;
+
 import java.io.Serializable;
 
 public class DBItem implements Serializable {
@@ -12,8 +14,12 @@ public class DBItem implements Serializable {
     private String selling_price;
     private Bitmap imageBtmp;
 
-    public DBItem(Bitmap imageBtmp, String itemId, String itemName, String stock, String cost, String selling_price) {
-        this.imageBtmp = imageBtmp;
+    private int quality = 90;
+    private int maxWidth = 250;
+    private int maxHeight = 250;
+
+    public DBItem(String imageURL, String itemId, String itemName, String stock, String cost, String selling_price) {
+        this.imageBtmp = BitmapReader.readImage(imageURL,quality,maxWidth,maxHeight);
         this.itemName = itemName;
         this.stock = stock;
         this.itemId = itemId;

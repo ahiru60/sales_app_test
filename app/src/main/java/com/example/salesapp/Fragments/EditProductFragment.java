@@ -48,6 +48,7 @@ import com.example.salesapp.Database.DbHandler;
 import com.example.salesapp.MainActivity;
 import com.example.salesapp.Models.DBItem;
 import com.example.salesapp.R;
+import com.example.salesapp.Tools.BitmapReader;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -61,9 +62,6 @@ import java.util.concurrent.ExecutionException;
  * create an instance of this fragment.
  */
 public class EditProductFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     public static final String TAG = "EditProductFragment";
@@ -84,8 +82,6 @@ public class EditProductFragment extends Fragment {
     private FrameLayout cameraLayout;
     private ImageButton captureBtn,cameraFlipBtn;
     private int rotation = 0;
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -93,15 +89,6 @@ public class EditProductFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment EditProductFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static EditProductFragment newInstance(String param1, String param2) {
         EditProductFragment fragment = new EditProductFragment();
         Bundle args = new Bundle();
@@ -186,22 +173,20 @@ public class EditProductFragment extends Fragment {
         editProductBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap image;
-                if(productImageBtmp != null){
-                    image = productImageBtmp;
-                }else{
-                    image = item.getImageBtmp();
-                }
 
                 String productStr = productName.getText().toString();
                 String stockStr = stock.getText().toString();
                 String costStr = cost.getText().toString();
                 String sellingPriceStr = sellingPrice.getText().toString();
+                String imageURL = "";
+                if(productImageBtmp != null){
+                    imageURL = BitmapReader.saveImage(productImageBtmp,productStr);
+                }
                 if(productStr.equals("") || stockStr.equals("") || costStr.equals("") || sellingPriceStr.equals("")){
                     Toast.makeText(getContext(),"Fill all fields", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    boolean added = dbHandler.updateItem(item.getItemId(),image,productStr,stockStr,costStr,sellingPriceStr);
+                    boolean added = dbHandler.updateItem(item.getItemId(),imageURL,productStr,stockStr,costStr,sellingPriceStr);
                     if(added){
                         Toast.makeText(getContext(),productStr +" edited succenssfully", Toast.LENGTH_SHORT).show();
                         FragmentManager fragmentManager = getParentFragmentManager();

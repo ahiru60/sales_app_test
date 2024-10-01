@@ -13,11 +13,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,6 +27,9 @@ import com.example.salesapp.Adapters.DbItemsListAdapter;
 import com.example.salesapp.Adapters.OrderListAdapter;
 import com.example.salesapp.Adapters.SessionCartListAdapter;
 import com.example.salesapp.Database.DbHandler;
+import com.example.salesapp.Dialogs.DiscountDialogFragment;
+import com.example.salesapp.Dialogs.OrderDialogFragment;
+import com.example.salesapp.Dialogs.ProductDialogFragment;
 import com.example.salesapp.MainActivity;
 import com.example.salesapp.Models.DBItem;
 import com.example.salesapp.Models.Discount;
@@ -44,15 +47,10 @@ import java.util.ArrayList;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClickListener, OrderListAdapter.OnClickListner{
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClickListener, OrderListAdapter.OnClickListner, DiscountDialogFragment.DiscountDbxListener, ProductDialogFragment.ProductDbxListener {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     public static final String TAG = "HomeFragment";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private View view;
@@ -64,26 +62,23 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
     private SessionCartListAdapter cartListAdapter;
     private RecyclerView recyclerViewItems, recyclerViewSearch, recyclerViewCart,recyclerViewOrder;
     private LinearLayoutManager linearLayoutManagerItems, linearLayoutManagerCart, linearLayoutManagerOrder;
-    private AlertDialog.Builder showDiscountDialogBuilder,productDialogBuilder,orderDialogBuilder;
-    private AlertDialog showDiscountDialog,showProductDialog,showOrderDialog;
+    private AlertDialog.Builder productDialogBuilder,orderDialogBuilder;
+    private AlertDialog showProductDialog,showOrderDialog;
     private DbHandler dbHandler;
     private User user;
     private Order order;
     private Discount discount;
-    private Button chargeBtn,saveBtn,addBtn,BtnEdit,BtnClose;
-    private Button oneBtn, twoBtn, threeBtn, fourBtn, fiveBtn, sixBtn,sevenBtn, eightBtn, nineBtn, zeroBtn, clearBtn;
-    private EditText display;
+    private Button chargeBtn,saveBtn,BtnEdit,BtnClose;;
     private FragmentManager fragmentManager;
-    private ImageButton searchBtn, addUserBtn, cartBackArrow, discountBtn,closeBtn,orderCloseBtn,orderSearchBtn;
+    private ImageButton searchBtn, addUserBtn, cartBackArrow, discountBtn,orderCloseBtn,orderSearchBtn;
     private ImageView DbxProductImage;
-    private View actionBar, discountCustomLayout,productCustomLayout,orderCustomLayout;
+    private View actionBar,productCustomLayout,orderCustomLayout;
     private FrameLayout searchBar;
     private EditText searchEditText, totalEditTxt, orderSearchEditText;
     private TextView cartItemsNumber,totalTxt,discountTxt,DbxProductName,DbxStock,DbxProductCode,DbxProductPrice,DbxProductCost;
     private MainActivity mainActivity;
     private LinearLayout viewCartBtn, listsView, salesViews, paymentView;
     private ConstraintLayout cartViewsHolder;
-    private RadioButton valueRBtn,percentageRBtn;
     private int itemCount;
     private boolean isSearching = false, isCarting = false, isOrderSearching = false;
     private ArrayList<Character> digits = new ArrayList<>();
@@ -93,20 +88,12 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
     private NumberFormat formatter = new DecimalFormat("#0.00");
     private DBItem item;
     private OrderListAdapter orderListAdapter;
+    private ProductDialogFragment productDialogFragment;
+    private OrderDialogFragment orderDialogFragment;
 
     public HomeFragment() {
         // Required empty public constructor
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -154,29 +141,17 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         dbHandler = new DbHandler(getActivity());
         //dbHandler.close();
        //getContext().deleteDatabase("sales.db");
-//        dbHandler.addItemtoItems(null,"Apple", "1500", "2.90","3");
-//        dbHandler.addItemtoItems(null,"Orange", "1000", "2","2.50");
-//        dbHandler.addItemtoItems(null,"Mango", "1000", "3","3.10");
-//        dbHandler.addItemtoItems(null,"Coconut", "300", "5","5.50");
-//        dbHandler.addItemtoItems(null,"Chocolate", "100", "3","3.01");
-//        dbHandler.addItemtoItems(null,"Candles", "500", "2","2.40");
-//        dbHandler.addItemtoItems(null,"King coconut", "1500", "4","4.50");
-//        dbHandler.addItemtoItems(null,"Beef", "1000", "5","5.20");
-//        dbHandler.addItemtoItems(null,"Avocado", "500", "3","3.10");
-//        dbHandler.addItemtoItems(null,"Fruit juice", "400", "2","3");
-//        dbHandler.addItemtoItems(null,"Pineapple", "300", "3","3.20");
-//        dbHandler.addItemtoItems(null,"Soap", "500", "1","1.50");
         setupLogics();
         setupDatabase();
         setupItemsRecyclerView();
         setupViews();
         setupCartRecyclerView();
-        setupDialog();
+        //setupDialog();
         return view;
     }
 
     private void setupLogics() {
-        user = new User(null,null,null,null, null, sessionItems,null);
+        user = new User("","","","", "", sessionItems,null);
         itemCount = user.getUserItems().size();
         cursor = 0;
     }
@@ -197,7 +172,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         listsView = view.findViewById(R.id.listsView);
         searchBar = view.findViewById(R.id.searchbar);
         addUserBtn = actionBar.findViewById(R.id.action_bar_add_user);
-        addUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_add_alt_24));
+        addUserBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),R.drawable.baseline_person_add_alt_24));
         viewCartBtn = actionBar.findViewById(R.id.viewCartBtn);
         salesViews = view.findViewById(R.id.salesViews);
         chargeBtn = view.findViewById(R.id.chargeBtn);
@@ -210,6 +185,8 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
     private void setupItemsRecyclerView() {
         itemListAdapter = new DbItemsListAdapter(items, this);
         linearLayoutManagerItems = new LinearLayoutManager(getActivity());
+        orderCustomLayout = this.getLayoutInflater().inflate(R.layout.orders_dialogbox,null);
+        recyclerViewOrder = orderCustomLayout.findViewById(R.id.recyclerViewOrder);
         recyclerViewItems = view.findViewById(R.id.recyclerViewItems);
         recyclerViewItems.setLayoutManager(linearLayoutManagerItems);
         recyclerViewItems.setAdapter(itemListAdapter);
@@ -251,235 +228,58 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         recyclerViewCart = view.findViewById(R.id.recyclerViewCart);
     }
 
-    private void setupDialog() {
-
-        showDiscountDialogBuilder = new AlertDialog.Builder(getContext());
-        productDialogBuilder = new AlertDialog.Builder(getContext());
-        orderDialogBuilder = new AlertDialog.Builder(getContext(),android.R.style.Widget_Material);
-
-        discountCustomLayout = getLayoutInflater().inflate(R.layout.discount_dialogbox, null);
-        productCustomLayout = getLayoutInflater().inflate(R.layout.product_dialogbox,null);
-        orderCustomLayout = getLayoutInflater().inflate(R.layout.orders_dialogbox,null);
-
-        showDiscountDialogBuilder.setView(discountCustomLayout);
-        showDiscountDialog = showDiscountDialogBuilder.create();
-
-        productDialogBuilder.setView(productCustomLayout);
-        showProductDialog = productDialogBuilder.create();
-
-        orderDialogBuilder.setView(orderCustomLayout);
-        showOrderDialog = orderDialogBuilder.create();
-        recyclerViewOrder = orderCustomLayout.findViewById(R.id.recyclerViewOrder);
-        orderCloseBtn = orderCustomLayout.findViewById(R.id.closeBtn);
-        orderSearchBtn = orderCustomLayout.findViewById(R.id.searchBtn);
-        orderSearchEditText = orderCustomLayout.findViewById(R.id.orderSearchBar);
-        linearLayoutManagerOrder = new LinearLayoutManager(getContext());
-        recyclerViewOrder.setLayoutManager(linearLayoutManagerOrder);
-        orderCloseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showOrderDialog.cancel();
-            }
-        });
-        orderSearchBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isOrderSearching){
-                    orderSearchEditText.setVisibility(View.GONE);
-                    isOrderSearching = false;
-                }else{
-                    orderSearchEditText.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
-        orderSearchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                orderItems = dbHandler.searchOrders(s.toString());
-                orderListAdapter = new OrderListAdapter(HomeFragment.this,HomeFragment.this,orderItems);
-                recyclerViewOrder.setAdapter(orderListAdapter);
-                showOrderDialog.show();
-            }
-        });
-
-        DbxProductImage = productCustomLayout.findViewById(R.id.userImage);
-        DbxProductName = productCustomLayout.findViewById(R.id.Txt_productName);
-        DbxStock = productCustomLayout.findViewById(R.id.Txt_stock);
-        DbxProductCode =productCustomLayout.findViewById(R.id.Txt_productCode);
-        DbxProductPrice = productCustomLayout.findViewById(R.id.Txt_productPrice);
-        DbxProductCost = productCustomLayout.findViewById(R.id.Txt_productCost);
-        BtnEdit = productCustomLayout.findViewById(R.id.Btn_edit);
-        BtnClose = productCustomLayout.findViewById(R.id.Btn_close);
-        BtnEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fragmentManager.beginTransaction()
-                        .add(R.id.fragment_container,EditProductFragment.class,null,EditProductFragment.TAG)
-                        .setReorderingAllowed(true)
-                        .addToBackStack("EditProductFragment")
-                        .commit();
-                showProductDialog.cancel();
-            }
-        });
-
-
-        closeBtn = discountCustomLayout.findViewById(R.id.closeBtn);
-        addBtn = discountCustomLayout.findViewById(R.id.addBtn);
-        display = discountCustomLayout.findViewById(R.id.display);
-        oneBtn = discountCustomLayout.findViewById(R.id.one);
-        twoBtn = discountCustomLayout.findViewById(R.id.two);
-        threeBtn = discountCustomLayout.findViewById(R.id.three);
-        fourBtn = discountCustomLayout.findViewById(R.id.four);
-        fiveBtn = discountCustomLayout.findViewById(R.id.five);
-        sixBtn = discountCustomLayout.findViewById(R.id.six);
-        sevenBtn = discountCustomLayout.findViewById(R.id.seven);
-        eightBtn = discountCustomLayout.findViewById(R.id.eight);
-        nineBtn = discountCustomLayout.findViewById(R.id.nine);
-        zeroBtn = discountCustomLayout.findViewById(R.id.zero);
-        clearBtn = discountCustomLayout.findViewById(R.id.clear);
-        valueRBtn = discountCustomLayout.findViewById(R.id.value);
-        percentageRBtn =discountCustomLayout.findViewById(R.id.percentage);
-        valueRBtn.toggle();
-        addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                discount = new Discount();
-                if(isValue){
-                    String text = display.getText().toString();
-                    if(!text.isEmpty()){
-                        discount.setValue(Double.parseDouble(text));
-                    }else{
-                        discount.setValue(0.00);
-                    }
-                }else {
-                    String [] split = display.getText().toString().split("%");
-                    discount.setPercentage(Double.parseDouble(split[0]));
-                }
-                user.setDiscount(discount);
-                digits.clear();
-                cursor =0;
-                showDiscountDialog.cancel();
-                chargeBtn.setText("CHARGE\n" + formatter.format(getTotal(user.getUserItems())) + " $");
-                discountTxt.setText(getDiscount(Double.valueOf(getTotal(user.getUserItems()).toString())).toString());
-
-            }
-        });
-        closeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDiscountDialog.cancel();
-            }
-        });
-        valueRBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isValue = true;
-                digits.clear();
-                cursor = 0;
-                display.setText(printToDisplay());
-                display.setHint("0.00");
-            }
-        });
-        percentageRBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isValue = false;
-                digits.clear();
-                cursor = 0;
-                display.setText("");
-                display.setHint("0.00%");
-
-            }
-        });
-
-        display.setText(printToDisplay());
-        oneBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('1');
-            }
-        });
-        twoBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('2');
-            }
-        });
-        threeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('3');
-            }
-        });
-        fourBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('4');
-            }
-        });
-        fiveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('5');
-            }
-        });
-        sixBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('6');
-            }
-        });
-        sevenBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('7');
-            }
-        });
-        eightBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('8');
-            }
-        });
-        nineBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('9');
-            }
-        });
-        zeroBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                type('0');
-            }
-        });
-
-        clearBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cursor = 0;
-                digits.clear();
-                if(isValue){
-                    display.setText("0.00");
-                }else {
-                    display.setText("0.00%");
-                }
-            }
-        });
-
-
-    }
+//    private void setupDialog() {
+//
+//
+//        orderDialogBuilder = new AlertDialog.Builder(getContext(),android.R.style.Widget_Material);
+//        orderCustomLayout = getLayoutInflater().inflate(R.layout.orders_dialogbox,null);
+//
+//        orderDialogBuilder.setView(orderCustomLayout);
+//        showOrderDialog = orderDialogBuilder.create();
+//        recyclerViewOrder = orderCustomLayout.findViewById(R.id.recyclerViewOrder);
+//        orderCloseBtn = orderCustomLayout.findViewById(R.id.closeBtn);
+//        orderSearchBtn = orderCustomLayout.findViewById(R.id.searchBtn);
+//        orderSearchEditText = orderCustomLayout.findViewById(R.id.orderSearchBar);
+//        linearLayoutManagerOrder = new LinearLayoutManager(getContext());
+//        recyclerViewOrder.setLayoutManager(linearLayoutManagerOrder);
+//        orderCloseBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                showOrderDialog.cancel();
+//            }
+//        });
+//        orderSearchBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(isOrderSearching){
+//                    orderSearchEditText.setVisibility(View.GONE);
+//                    isOrderSearching = false;
+//                }else{
+//                    orderSearchEditText.setVisibility(View.VISIBLE);
+//                }
+//            }
+//        });
+//
+//        orderSearchEditText.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                orderItems = dbHandler.searchOrders(s.toString());
+//                orderListAdapter = new OrderListAdapter(HomeFragment.this,HomeFragment.this,orderItems);
+//                recyclerViewOrder.setAdapter(orderListAdapter);
+//                showOrderDialog.show();
+//            }
+//        });
+//    }
 
     private void setupButtonClicks() {
 
@@ -521,7 +321,7 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                         dbHandler.updateOrder(user.getOrderId(),user.getUserId(),user.getUserItems(),discount,isValue);
                     }
                     cartBackArrow.setVisibility(View.GONE);
-                    user = new User(null,null,null,null,null,null,null);
+                    user = new User(null,"",null,null,null,null,null);
 //                    fragmentManager.beginTransaction()
 //                            .add(R.id.fragment_container, HomeFragment.class, null, HomeFragment.TAG)
 //                            .setReorderingAllowed(true)
@@ -530,10 +330,9 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
                     mainActivity.refreshFragments(HomeFragment.TAG);
                     //mainActivity.setArrow(true);
                 }else{
-                    orderItems = dbHandler.getOrders();
-                    orderListAdapter = new OrderListAdapter(HomeFragment.this,HomeFragment.this,orderItems);
-                    recyclerViewOrder.setAdapter(orderListAdapter);
-                    showOrderDialog.show();
+                  orderDialogFragment =  new OrderDialogFragment();
+                  orderDialogFragment.show(
+                          getChildFragmentManager(), OrderDialogFragment.TAG);
                 }
             }
         });
@@ -624,7 +423,9 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         discountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDiscountDialog.show();
+                //showDiscountDialog.show();
+                new DiscountDialogFragment(discount,HomeFragment.this).show(
+                        getChildFragmentManager(), DiscountDialogFragment.TAG);
             }
         });
     }
@@ -695,20 +496,8 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
     @Override
     public void productInfoClick(DBItem item) {
         this.item = item;
-        DbxProductImage.setImageBitmap(item.getImageBtmp());
-        DbxProductName.setText(item.getItemName());
-        DbxStock.setText(item.getStock()+"in stock");
-        DbxProductCode.setText(item.getItemId());
-        DbxProductPrice.setText(item.getSellingPrice());
-        DbxProductCost.setText(item.getCost());
-
-        BtnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showProductDialog.cancel();
-            }
-        });
-        showProductDialog.show();
+        productDialogFragment =  new ProductDialogFragment(item,HomeFragment.this);
+        productDialogFragment.show(getChildFragmentManager(), ProductDialogFragment.TAG);
     }
 
     public Double getTotal(ArrayList<SessionItem> items) {
@@ -750,101 +539,70 @@ public class HomeFragment extends Fragment implements DbItemsListAdapter.OnClick
         isCarting = is;
     }
 
-    private String printToDisplay() {
-        String text = "";
-        int index = 0;
-        for(Character digit : digits){
-            if(index == digits.size()-3){
-                text += digit;
-                text += '.';
-            }else{
-                text += digit;
-            }
-            index++;
-        }
-        if(!isValue){
-            text+= '%';
-        }
-        if(digits.size()== 1){
-            return "0.0"+text;
-        }
-        if(digits.size()== 2){
-            return "0."+text;
-        }
-        return text;
-    }
-
-    private void type(Character value) {
-        if(isValue){
-            if (cursor < 12){
-                digits.add(value);
-                display.setText(printToDisplay());
-                cursor++;
-            }
-        }else{
-            if (cursor < 5){
-                digits.add(value);
-                display.setText(printToDisplay());
-                String text = "";
-                for(Character digit : digits){
-                    text+= digit;
-                }
-                int perc = Integer.parseInt(text);
-                if(perc > 10000){
-                    digits.clear();
-                    digits.add('1');
-                    digits.add('0');
-                    digits.add('0');
-                    digits.add('0');
-                    digits.add('0');
-                    display.setText(printToDisplay());
-                    cursor = 5;
-                }
-                cursor++;
-            }
-        }
-    }
-
     public void removeUser(){
-        user.setUserId(null);
-        user.setLocation(null);
-        user.setGender(null);
-        user.setImage(null);
-        user.setUserName(null);
-        addUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_add_alt_24));
+        user.setUserId("");
+        user.setLocation("");
+        user.setGender("");
+        user.setImage((String) "");
+        user.setUserName("");
+        addUserBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),R.drawable.baseline_person_add_alt_24));
         mainActivity.backFragments();
     }
 
     public boolean isCarting(){
         return isCarting;
     }
-
     @Override
-    public void orderItemClick(String orderId) {
+    public OrderDialogFragment orderItemClick(String orderId){
+        orderDialogFragment = this.orderDialogFragment;
         user.getUserItems().clear();
         user.setUserItems(dbHandler.getOrder(user,orderId));
         discount = user.getDiscount();
-        if(discount != null){
-            isValue = discount.isValue();
-        display.setText(discount.getDiscount().toString());
-        if(!isValue){
-            valueRBtn.toggle();
-            percentageRBtn.toggle();
-        }
-        }
+//        if(discount != null){
+//            isValue = discount.isValue();
+//            display.setText(discount.getDiscount().toString());
+//        if(!isValue){
+//            valueRBtn.toggle();
+//            percentageRBtn.toggle();
+//        }
+//        }
         user.setOrderId(orderId);
         itemCount = -1;
         for(SessionItem item : user.getUserItems()){
             itemCount+= Integer.parseInt(item.getQuantity());
         }
         if(user.getUserName() != null){
-            addUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_24));
+            addUserBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),R.drawable.baseline_person_24));
         }else {
-            addUserBtn.setImageDrawable(getResources().getDrawable(R.drawable.baseline_person_add_alt_24));
+            addUserBtn.setImageDrawable(ContextCompat.getDrawable(getContext(),R.drawable.baseline_person_add_alt_24));
         }
         chargeBtn.setText("CHARGE\n" + formatter.format(getTotal(user.getUserItems())) + " $");
         discountTxt.setText(getDiscount(Double.valueOf(getTotal(user.getUserItems()).toString())).toString());
-        showOrderDialog.cancel();
+        //showOrderDialog.cancel();
+        return this.orderDialogFragment;
     }
+
+    @Override
+    public void rbValueBtnClick(boolean isValue) {
+        this.isValue = isValue;
+    }
+
+    @Override
+    public void addBtnClick(Discount discount) {
+        this.discount =discount;
+        user.setDiscount(discount);
+        chargeBtn.setText("CHARGE\n" + formatter.format(getTotal(user.getUserItems())) + " $");
+        discountTxt.setText(getDiscount(Double.valueOf(getTotal(user.getUserItems()).toString())).toString());
+    }
+
+    @Override
+    public void editBtnClickListener() {
+        fragmentManager.beginTransaction()
+                .add(R.id.fragment_container, EditProductFragment.class,null,EditProductFragment.TAG)
+                .setReorderingAllowed(true)
+                .addToBackStack("EditProductFragment")
+                .commit();
+    }
+
 }
 

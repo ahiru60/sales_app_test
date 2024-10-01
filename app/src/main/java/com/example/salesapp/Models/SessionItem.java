@@ -42,8 +42,4 @@ public class SessionItem {
     public Bitmap getImage() {
         return image;
     }
-
-    public DBItem getDBCartItem (@Nullable String itemId, String cost){
-       return new DBItem(image,itemId,itemName,quantity,cost,price);
-    }
 }

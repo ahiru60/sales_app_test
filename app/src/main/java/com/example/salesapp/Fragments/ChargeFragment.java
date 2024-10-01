@@ -24,15 +24,7 @@ import com.example.salesapp.R;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChargeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ChargeFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     public static final String TAG = "ChargeFragment";
@@ -56,16 +48,6 @@ public class ChargeFragment extends Fragment {
     public ChargeFragment() {
         // Required empty public constructor
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ChargeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ChargeFragment newInstance(String param1, String param2) {
         ChargeFragment fragment = new ChargeFragment();
         Bundle args = new Bundle();
@@ -85,14 +67,7 @@ public class ChargeFragment extends Fragment {
         OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
             @Override
             public void handleOnBackPressed() {
-//                mainActivity.setArrow(true);
-//                fragmentManager.beginTransaction()
-//                        .remove(new PaymentFragment())
-//                        .commit();
-//                fragmentManager.popBackStack();
-                //mainActivity.backFragments();
                 mainActivity.onNavItemHome();
-                //Toast.makeText(getContext(),"Can't Back",Toast.LENGTH_SHORT).show();
 
             }
         };
@@ -150,7 +125,7 @@ public class ChargeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 items.clear();
-                user = new User(null,null,null,null,null,null,null);
+                user = new User("","","","","",null,null);
                 mainActivity.homeSetActions(true);
                 mainActivity.refreshFragments(HomeFragment.TAG);
                 mainActivity.onNavItemHome();

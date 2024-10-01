@@ -17,6 +17,8 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.camera.core.Camera;
@@ -46,6 +48,8 @@ import android.widget.Toast;
 import com.example.salesapp.Database.DbHandler;
 import com.example.salesapp.MainActivity;
 import com.example.salesapp.R;
+import com.example.salesapp.Tools.BitmapReader;
+import com.example.salesapp.Tools.ImagePicker;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -80,23 +84,12 @@ public class ProductsFragment extends Fragment {
     private FrameLayout cameraLayout;
     private ImageButton captureBtn,cameraFlipBtn;
     private int rotation = 0;
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     public ProductsFragment() {
         // Required empty public constructor
     }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProductsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static ProductsFragment newInstance(String param1, String param2) {
         ProductsFragment fragment = new ProductsFragment();
         Bundle args = new Bundle();
@@ -152,7 +145,12 @@ public class ProductsFragment extends Fragment {
                     Toast.makeText(getContext(),"Fill all fields", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    dbHandler.addItemtoItems(image,productStr,stockStr,costStr,sellingPriceStr);
+                    String ImageURL= "";
+                    if(image != null){
+                        ImageURL =  BitmapReader.saveImage(image,productStr);
+                    }
+
+                    dbHandler.addItemtoItems(ImageURL,productStr,stockStr,costStr,sellingPriceStr);
                     Toast.makeText(getContext(),productStr +" added succenssfully", Toast.LENGTH_SHORT).show();
                     productName.setText("");
                     stock.setText("");
@@ -179,9 +177,26 @@ public class ProductsFragment extends Fragment {
         productImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkAndRequestPermissions(getActivity())){
-                    chooseImage(getActivity());
-                }
+
+                    if (ContextCompat.checkSelfPermission(
+                            getContext(), Manifest.permission.CAMERA) ==
+                            PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                            getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                            PackageManager.PERMISSION_GRANTED) {
+                        // You can use the API that requires the permission.
+                        chooseImage();
+                    } else if (ActivityCompat.shouldShowRequestPermissionRationale(
+                            getActivity(), Manifest.permission.CAMERA)) {
+                        Toast.makeText(mainActivity, "permission has denied", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // You can directly ask for the permission.
+                        // The registered ActivityResultCallback gets the result of this request.
+                        requestMultiplePermissions.launch(
+                                new String[]{
+                                        Manifest.permission.CAMERA,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                });
+                    }
             }
         });
     }
@@ -204,15 +219,30 @@ public class ProductsFragment extends Fragment {
         String stockStr = stock.getText().toString();
         String costStr = cost.getText().toString();
         String sellingPriceStr = sellingPrice.getText().toString();
-        if(productStr == "" && stockStr == "" && costStr == "" && sellingPriceStr == ""){
-            addProductBtn.setEnabled(false);
-
-        }
     }
-    private void chooseImage(Context context){
+
+    // Handled permission Result
+    private ActivityResultLauncher<String[]> requestMultiplePermissions = registerForActivityResult(
+            new ActivityResultContracts.RequestMultiplePermissions(),
+            result -> {
+                Boolean cameraPermissionGranted = result.getOrDefault(Manifest.permission.CAMERA, false);
+                Boolean storagePermissionGranted = result.getOrDefault(Manifest.permission.WRITE_EXTERNAL_STORAGE, false);
+
+                if (cameraPermissionGranted && storagePermissionGranted) {
+                    chooseImage();
+                } else {
+                    if (!cameraPermissionGranted) {
+                        Toast.makeText(getActivity(), "FlagUp Requires Access to Camera.", Toast.LENGTH_SHORT).show();
+                    }
+                    if (!storagePermissionGranted) {
+                        Toast.makeText(getActivity(), "FlagUp Requires Access to Your Storage.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+    private void chooseImage(){
         final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Exit" }; // create a menuOption Array
         // create a dialog for showing the optionsMenu
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // set the items in builder
         builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
             @Override
@@ -258,7 +288,7 @@ public class ProductsFragment extends Fragment {
                 else if(optionsMenu[i].equals("Choose from Gallery")){
                     // choose from  external storage
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(pickPhoto , 1);
+                    getActivity().startActivityForResult(pickPhoto , 1);
                 }
                 else if (optionsMenu[i].equals("Exit")) {
                     dialogInterface.dismiss();
@@ -267,75 +297,7 @@ public class ProductsFragment extends Fragment {
         });
         builder.show();
     }
-    // function to check permission
-    public static boolean checkAndRequestPermissions(final Activity context) {
-        int WExtstorePermission = ContextCompat.checkSelfPermission(context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int cameraPermission = ContextCompat.checkSelfPermission(context,
-                Manifest.permission.CAMERA);
-        List<String> listPermissionsNeeded = new ArrayList<>();
-        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.CAMERA);
-        }
-        if (WExtstorePermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded
-                    .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(context, listPermissionsNeeded
-                            .toArray(new String[listPermissionsNeeded.size()]),
-                    REQUEST_ID_MULTIPLE_PERMISSIONS);
-            return false;
-        }
-        return true;
-    }
-    // Handled permission Result
-    @Override
-    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_ID_MULTIPLE_PERMISSIONS:
-                if (ContextCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getActivity().getApplicationContext(),
-                                    "FlagUp Requires Access to Camara.", Toast.LENGTH_SHORT)
-                            .show();
-                } else if (ContextCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getActivity().getApplicationContext(),
-                            "FlagUp Requires Access to Your Storage.",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    chooseImage(getActivity());
-                }
-                break;
-        }
-    }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_CANCELED) {
-            switch (requestCode) {
-                case 1:
-                    if (resultCode == RESULT_OK && data != null) {
-                        Uri selectedImage = data.getData();
-                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                        if (selectedImage != null) {
-                            Cursor cursor = getActivity().getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                            if (cursor != null) {
-                                cursor.moveToFirst();
-                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                                String picturePath = cursor.getString(columnIndex);
-                                productImageBtmp = BitmapFactory.decodeFile(picturePath);
-                                productImage.setImageBitmap(productImageBtmp);
-                                cursor.close();
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-    }
-    private Bitmap rotateBitmap(Bitmap sourceBitmap,float angle) {
+    private Bitmap rotateBitmap(Bitmap sourceBitmap, float angle) {
         Bitmap bitmap = sourceBitmap;
         Bitmap rotateBitmap = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -345,7 +307,7 @@ public class ProductsFragment extends Fragment {
         canvas.drawBitmap(bitmap, matrix, null);
         return rotateBitmap;
     }
-    private void startCamera(@NonNull ProcessCameraProvider cameraProvider,int cameraSelection) {
+    private void startCamera(@NonNull ProcessCameraProvider cameraProvider, int cameraSelection) {
         // Preview Use Case
         Preview preview = new Preview.Builder().build();
 
@@ -368,7 +330,7 @@ public class ProductsFragment extends Fragment {
     }
     private void capturePhoto() {
         // Create a temporary file for the captured image
-        File photoFile = new File(requireContext().getExternalFilesDir(null), "photo.jpg");
+        File photoFile = new File(getActivity().getExternalFilesDir(null), "photo.jpg");
 
         // Set up the output options for ImageCapture
         ImageCapture.OutputFileOptions outputFileOptions =
@@ -392,4 +354,6 @@ public class ProductsFragment extends Fragment {
                     }
                 });
     }
+
+
 }

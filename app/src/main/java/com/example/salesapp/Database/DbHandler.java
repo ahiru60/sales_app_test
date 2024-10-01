@@ -1,14 +1,10 @@
 package com.example.salesapp.Database;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.util.Log;
 
 import com.example.salesapp.Models.DBItem;
@@ -17,13 +13,8 @@ import com.example.salesapp.Models.Order;
 import com.example.salesapp.Models.Receipt;
 import com.example.salesapp.Models.SessionItem;
 import com.example.salesapp.Models.User;
-import com.example.salesapp.Tools.BitmapQualityReducer;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 public class DbHandler extends SQLiteOpenHelper {
 
@@ -95,12 +86,6 @@ public class DbHandler extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.d("DbHandler", "onCreate: " + e);
         }
-//        addItemtoItems("Apple", "1500", "3");
-//        addItemtoItems("Orange", "1000", "2");
-//        addItemtoItems("Mango", "1000", "3");
-//        addItemtoItems("Coconut", "300", "5");
-//        addItemtoItems("Chocolate", "100", "3");
-//        addItemtoItems("Candles", "500", "2");
     }
 
     public void saveReceipt(Receipt receipt){
@@ -117,18 +102,9 @@ public class DbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM receipts;", null);
         if (cursor.moveToFirst()) {
             do {
-                Bitmap bitmap = readImage(cursor.getString(1));
                 receipts.add(new Receipt(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3)));
             } while (cursor.moveToNext());
         }
-//        Collections.sort(receipts, new Comparator<Receipt>() {
-//            @Override
-//            public int compare(Receipt r1, Receipt r2) {
-//                int time1 = Integer.parseInt(r1.getTimestamp().replace("-: ", ""));
-//                int time2 = Integer.parseInt(r2.getTimestamp().replace("-: ", ""));
-//                return Integer.compare(time1, time2);
-//            }
-//        });
         String date = "";
         for(Receipt receipt : receipts){
             if(!date.equals(receipt.getTimestamp().split(" ")[0])){
@@ -146,16 +122,10 @@ public class DbHandler extends SQLiteOpenHelper {
         return formatedReceipts;
     }
 
-    public void addItemtoItems(Bitmap imageBtmp, String itemName, String stock, String cost, String selling_price) {
+    public void addItemtoItems(String imageURL, String itemName, String stock, String cost, String selling_price) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-
-        if (imageBtmp != null) {
-            String imageURL = saveImage(imageBtmp, itemName);
-            values.put("image", imageURL);
-        } else {
-            values.put("image", "");
-        }
+        values.put("image", imageURL);
         values.put("itemName", itemName);
         values.put("stock", stock);
         values.put("cost", cost);
@@ -163,16 +133,11 @@ public class DbHandler extends SQLiteOpenHelper {
         db.insert("items", null, values);
     }
 
-    public boolean updateItem(String itemId, Bitmap imageBtmp, String itemName, String stock, String cost, String selling_price) {
+    public boolean updateItem(String itemId, String imageURL, String itemName, String stock, String cost, String selling_price) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         String[] whereArgs = new String[]{String.valueOf(itemId)};
-        if (imageBtmp != null) {
-            String imageURL = saveImage(imageBtmp, itemName);
-            values.put("image", imageURL);
-        } else {
-            values.put("image", "");
-        }
+        values.put("image", imageURL);
         values.put("itemName", itemName);
         values.put("stock", stock);
         values.put("cost", cost);
@@ -190,8 +155,7 @@ public class DbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM items;", null);
         if (cursor.moveToFirst()) {
             do {
-                Bitmap bitmap = readImage(cursor.getString(1));
-                items.add(new DBItem(bitmap, cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
+                items.add(new DBItem(cursor.getString(1), cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
             } while (cursor.moveToNext());
         }
         return items;
@@ -203,8 +167,7 @@ public class DbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM items WHERE itemId = ?;", new String[]{itemId});
         if (cursor.moveToFirst()) {
             do {
-                Bitmap bitmap = readImage(cursor.getString(1));
-                items.add(new DBItem(bitmap, cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
+                items.add(new DBItem(cursor.getString(1), cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
             } while (cursor.moveToNext());
         }
         return items;
@@ -216,8 +179,7 @@ public class DbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM items WHERE itemName LIKE ?", new String[]{"%" + keyword + "%"});
         if (cursor.moveToFirst()) {
             do {
-                Bitmap bitmap = readImage(cursor.getString(1));
-                items.add(new DBItem(bitmap, cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
+                items.add(new DBItem(cursor.getString(1), cursor.getString(0), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
             } while (cursor.moveToNext());
         }
         return items;
@@ -228,7 +190,7 @@ public class DbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM users WHERE user_name LIKE ? OR userId LIKE ? OR location LIKE ? OR gender LIKE ?", new String[]{"%" + keyword + "%","%" + keyword + "%","%" + keyword + "%","%" + keyword + "%"});
         if (cursor.moveToFirst()) {
             do {
-                items.add(new User(cursor.getString(0),readImage(cursor.getString(1)),cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
+                items.add(new User(cursor.getString(0), cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4),null,null));
             } while (cursor.moveToNext());
         }
         return items;
@@ -339,7 +301,7 @@ public class DbHandler extends SQLiteOpenHelper {
             user.setGender(cursor.getString(14));
             user.setLocation(cursor.getString(15));
             if (cursor.getString(16) != null) {
-                user.setImage(readImage(cursor.getString(16)));
+                user.setImage(cursor.getString(16));
             }
             Discount discount = new Discount();
             String isValue = cursor.getString(2);
@@ -409,12 +371,12 @@ public class DbHandler extends SQLiteOpenHelper {
         db.delete("orders", "orderId = ?", new String[]{orderId});
     }
 
-    public long addUser(Bitmap image, String userName, String gender, String location) {
+    public long addUser(String imageURL, String userName, String gender, String location) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         long userId;
 
-        values.put("image_url", saveImage(image, userName));
+        values.put("image_url", imageURL);
         values.put("user_name", userName);
         values.put("gender", gender);
         values.put("location", location);
@@ -429,24 +391,23 @@ public class DbHandler extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM users", null);
         if (cursor.moveToNext()) {
             do {
-                Bitmap image = readImage(cursor.getString(1));
-                users.add(new User(cursor.getString(0), image, cursor.getString(2), cursor.getString(3), cursor.getString(4), null, null));
+                users.add(new User(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), null, null));
             } while (cursor.moveToNext());
         }
         return users;
     }
 
-    public Bitmap getUserImage(String userId) {
+    public String getUserImage(String userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<User> users = new ArrayList<>();
         Cursor cursor = db.rawQuery("SELECT image_url FROM users WHERE userId = ?", new String[]{userId});
-        Bitmap image = null;
+        String imageURL = null;
         if (cursor.moveToNext()) {
             do {
-                image = readImage(cursor.getString(1));
+                imageURL = cursor.getString(1);
             } while (cursor.moveToNext());
         }
-        return image;
+        return imageURL;
     }
 
     public void deleteTable(String tableName) {
@@ -470,34 +431,5 @@ public class DbHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    private String saveImage(Bitmap finalBitmap, String productName) {
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/SalesApp/images/";
-        path = path + productName.toLowerCase() + ".jpg";
-        File file = new File(path);
-        if (!file.exists()) {
-            file.mkdirs();  // This will create the folder and any necessary parent directories
-        }
-        if (file.exists()) file.delete();
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 50, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return path;
-    }
 
-    private Bitmap readImage(String ImageURL) {
-        Bitmap bitmap = null;
-        if (!ImageURL.equals(null)) {
-            File imgFile = new File(ImageURL);
-
-            if (imgFile.exists()) {
-                bitmap = BitmapQualityReducer.reduceBitmapQualityAndSize(BitmapFactory.decodeFile(imgFile.getAbsolutePath()), quality, maxWidth, maxHeight);
-            }
-        }
-        return bitmap;
-    }
 }

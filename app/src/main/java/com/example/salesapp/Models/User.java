@@ -2,6 +2,8 @@ package com.example.salesapp.Models;
 
 import android.graphics.Bitmap;
 
+import com.example.salesapp.Tools.BitmapReader;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -18,9 +20,13 @@ public class User {
     private String orderId;
     private ArrayList<SessionItem> userItems;
 
-    public User(@Nullable String userId,@Nullable Bitmap image,@Nullable String userName,@Nullable String gender,@Nullable String location,@Nullable ArrayList<SessionItem> userCartItems ,@Nullable Discount discount) {
+    private int quality = 90;
+    private int maxWidth = 250;
+    private int maxHeight = 250;
+
+    public User(@Nullable String userId,@Nullable String imageURL,@Nullable String userName,@Nullable String gender,@Nullable String location,@Nullable ArrayList<SessionItem> userCartItems ,@Nullable Discount discount) {
         this.userId = userId;
-        this.image = image;
+        this.image = BitmapReader.readImage(imageURL,quality,maxWidth,maxHeight);
         this.userName = userName;
         this.gender = gender;
         this.location = location;
@@ -37,6 +43,9 @@ public class User {
         return image;
     }
 
+    public void setImage(String imageURL) {
+        this.image = BitmapReader.readImage(imageURL,quality,maxWidth,maxHeight);
+    }
     public void setImage(Bitmap image) {
         this.image = image;
     }

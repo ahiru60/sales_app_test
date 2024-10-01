@@ -24,7 +24,7 @@ import com.example.salesapp.Fragments.ChargeFragment;
 import com.example.salesapp.Fragments.DatePickerFragment;
 import com.example.salesapp.Fragments.HomeFragment;
 import com.example.salesapp.Fragments.ProductsFragment;
-import com.example.salesapp.Fragments.ReceiptFragment;
+import com.example.salesapp.Fragments.ReceiptListFragment;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setCustomView(R.layout.action_bar);
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.salesBlue)));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(MainActivity.this,R.color.salesBlue)));
         actionBar = getSupportActionBar().getCustomView();
         title = actionBar.findViewById(R.id.action_bar_title);
         backArrow = actionBar.findViewById(R.id.backArrow);
@@ -225,19 +225,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     public void onNavItemHome(){
-//        fragmentManager = getSupportFragmentManager();
-//        fragmentManager.beginTransaction()
-//            .remove(new HomeFragment())
-//            .commit();
-//        fragmentManager.popBackStack();
-//        fragmentManager.beginTransaction()
-//                .remove(new ChargeFragment())
-//                .commit();
-//        fragmentManager.popBackStack();
-//        fragmentManager.beginTransaction()
-//                .remove(new CartFragment())
-//                .commit();
-//        fragmentManager.popBackStack();
         showHideActions(HomeFragment.TAG);
         homeSetActions(true);
         presstime = 0;
@@ -259,9 +246,9 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
     private void onNavItemReceipts() {
-        showHideActions(ReceiptFragment.TAG);
+        showHideActions(ReceiptListFragment.TAG);
         fragmentManager.beginTransaction()
-                .add(R.id.fragment_container, ReceiptFragment.class,null,ReceiptFragment.TAG)
+                .add(R.id.fragment_container, ReceiptListFragment.class,null, ReceiptListFragment.TAG)
                 .setReorderingAllowed(true)
                 .addToBackStack("ReceiptFragment")
                 .commit();
